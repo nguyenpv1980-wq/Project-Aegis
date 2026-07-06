@@ -90,10 +90,11 @@ After creating or editing files, run or produce a validation report that checks:
 - `name` matches directory;
 - descriptions are specific and under 1024 characters;
 - no `SKILL.md` exceeds 500 lines;
-- every skill has `evals/evals.json`;
+- every skill has `evals/evals.json` (structural existence + JSON parse; no runner yet);
+- `evals/trigger-evals.json` parses when present (required for overlapping skills in Phase 8);
 - no broad `allowed-tools`;
 - side-effect skills are manual-only;
-- README/catalog is updated;
+- catalog integrity: `README.md` and `docs/skills-catalog.md` list every real skill and claim none that do not exist;
 - product-specific leakage is absent.
 ```
 
@@ -122,28 +123,33 @@ Create or update:
    - Define P0/P1/P2 priority meaning.
    - Explain the difference between skills and agents.
 
-2. `docs/agents/agent-orchestrator-prompts.md`
-   - Add reusable prompts for:
-     - Principal Claude Architect Agent
-     - SaaS Security and Tenant Isolation Agent
-     - QA Automation and Release Evidence Agent
-     - Full Codebase Audit Agent
-     - Senior Troubleshooting Agent
-     - AI Security and LLM Systems Agent
-     - Release Captain Agent
+2. `.claude/agents/<agent-name>.md` (reconciled decision D2 — real read-only subagents,
+   not a `docs/agents/` prompt file)
+   - Create the seven read-only reviewer subagents:
+     - `principal-architecture-reviewer` (Principal Claude Architect role)
+     - `secure-saas-reviewer` (SaaS Security and Tenant Isolation role)
+     - `qa-automation-lead` (QA Automation and Release Evidence role)
+     - `full-codebase-auditor` (Full Codebase Audit role)
+     - `senior-troubleshooting-lead` (Senior Troubleshooting role)
+     - `ai-security-red-team-reviewer` (AI Security and LLM Systems role)
+     - `release-readiness-reviewer` (Release Captain role)
+   - Read-only tools by default. Narrow descriptions.
    - Agents must compose skills and produce evidence.
    - Agents must not duplicate full skill bodies.
 
 3. `scripts/validate-skills.py`
-   - Validate `.claude/skills/**/SKILL.md`.
+   - Validate `.claude/skills/**/SKILL.md` (ignore `_template`).
    - Check required frontmatter.
    - Check `name` matches directory.
    - Check line count under 500.
    - Check description exists and is under 1024 characters.
-   - Check `evals/evals.json` exists.
+   - Check `evals/evals.json` exists and parses (structural only — no runner yet, per D3).
+   - Validate `evals/trigger-evals.json` as JSON when present.
    - Flag broad `allowed-tools` such as unrestricted Bash.
-   - Flag missing stop conditions.
-   - Flag likely product-specific terms.
+   - Catalog integrity: every real skill is listed in `docs/skills-catalog.md` and `README.md`;
+     the catalog/README must not claim skills that do not exist.
+   - Bundled-name collision: no skill name shadows a reserved bundled skill name; no duplicates.
+   - Exit cleanly with a "no skills found" status when only `_template` exists.
 
 4. Update `README.md`
    - Add usage guidance.
@@ -517,9 +523,43 @@ After creation, validate all skills and update the catalog.
 
 ---
 
+## 9.1 Phase 8 Prompt — Backlog Expansion (ported from the execution plan)
+
+```markdown
+Implement Phase 8 only, and only after Phases 0–7 validate cleanly.
+
+Goal: convert the remaining 300-skill roadmap (`docs/300-repeatable-software-saas-skills-roadmap.md`
+and `docs/skills/`) into executable skills without lowering quality.
+
+Read:
+- every file under `docs/skills/`
+- `docs/skills-catalog.md`
+- `docs/reconciliation/step-0-reconciliation-v4.md`
+- validation results and any real-use notes from prior phases
+
+Batch rules (non-negotiable):
+1. Do not create more than 20 skills per pass.
+2. Merge duplicate or overlapping skills instead of creating noisy variants.
+3. Prefer one strong skill over five weak ones.
+4. Add `evals/trigger-evals.json` for any skill whose description overlaps an existing skill.
+5. Update `README.md` and `docs/skills-catalog.md` after each batch.
+6. Run `python scripts/validate-skills.py` after each batch.
+7. Create a changelog entry explaining the batch.
+8. Stop if generated skills become repetitive, too long, or weakly differentiated.
+
+Close each batch with: batch summary, validation result, overlap risks, recommended next batch.
+```
+
+---
+
 ## 10. Agent Prompt Pack
 
-Store these under `docs/agents/agent-orchestrator-prompts.md` in Phase 0.
+**Reconciled (D2):** the real subagents live at `.claude/agents/<agent-name>.md` (read-only
+default) and are created in Phase 0. The role prompts below are the *design intent* behind
+those subagents — use them as reference when refining each `.claude/agents/*.md` file. Do not
+also create a separate `docs/agents/agent-orchestrator-prompts.md` (it would duplicate the
+subagent bodies). Role → subagent mapping is in
+[`docs/reconciliation/step-0-reconciliation-v4.md`](../reconciliation/step-0-reconciliation-v4.md) §5.
 
 ### Principal Claude Architect Agent
 
@@ -713,9 +753,10 @@ Produce:
 1. Run the **Master Role Prompt**.
 2. Run **Phase 0**.
 3. Run the **Final Audit Prompt**.
-4. Run **Phase 1**.
+4. Run **Phase 1** (the operating-discipline pack — reconciled decision D4).
 5. Run the **Final Audit Prompt**.
 6. Run **Phase 2**.
-7. Continue one phase at a time only after the previous phase passes validation.
+7. Continue one phase at a time (through **Phase 7**) only after the previous phase passes validation.
+8. Run **Phase 8** (backlog expansion, §9.1) last, in validated batches of ≤20 skills.
 
 Do not reward speed over quality. This repo is meant to improve future Claude behavior, so weak skills are worse than no skills.
