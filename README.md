@@ -113,6 +113,9 @@ Notes:
 - A `gate-guard` failure is not a defect; it is the intended signal that the change needs
   human eyes. Fixing the gate to "make CI green" defeats its purpose.
 - The gate uses only `actions/checkout` and `actions/setup-python` — no third-party actions.
+- Auto-merge is enabled per-phase via `gh pr merge --auto --squash` — never for changes
+  touching the merge gate itself (see
+  [`docs/reconciliation/auto-merge-policy.md`](docs/reconciliation/auto-merge-policy.md)).
 
 ## Target repository layout
 
