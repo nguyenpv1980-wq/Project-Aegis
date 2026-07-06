@@ -1,0 +1,68 @@
+---
+name: _template
+description: TEMPLATE ONLY — not a real skill and never invoked. Copy this directory to .claude/skills/<your-skill-name>/, rename it, set `name` to match the new directory, and rewrite every section against docs/skill-generation-standard.md.
+# disable-model-invocation: true   # uncomment if the real skill has side effects
+# allowed-tools: Read, Grep, Glob  # optional & narrow only; omit to inherit defaults
+---
+
+# _template (reference skill)
+
+> **This is a template, not a shipped skill.** It lives at `.claude/skills/_template/`
+> and is deliberately ignored by `scripts/validate-skills.py`. Do not invoke it.
+> To create a skill: copy this directory, rename it, and fill in every section below.
+> Full rules: [docs/skill-generation-standard.md](../../../docs/skill-generation-standard.md).
+
+## Purpose
+
+State, in one paragraph, what the real skill produces and the value it delivers.
+Example: "Produces a normalized spreadsheet and summary tab from a messy export."
+
+## Use When
+
+- Use when: the user's request matches the concrete trigger the skill is built for.
+- Use when: an adjacent-but-in-scope variation of that request appears.
+- Do NOT use when: the request looks similar but belongs to another skill or a
+  plain response — name that case explicitly so the model doesn't over-trigger.
+
+## Inputs to Inspect
+
+- The repo files, docs, code, tests, and prior artifacts the real skill must read
+  before acting. List them concretely so context precedes action.
+
+## Workflow
+
+1. Gather and validate the inputs the skill needs (see **Inputs to Inspect**).
+2. Perform the core transformation, reading `references/` detail files on demand.
+3. Produce the deliverable exactly as specified in **Output Format**.
+4. Run the **Validation Checklist** before declaring done.
+
+## Output Format
+
+Describe the exact deliverable: file path(s) and naming, report structure, or data
+schema. Be specific enough that two runs produce consistent shapes.
+
+## Validation Checklist
+
+- [ ] Output matches the shape declared above.
+- [ ] No **Stop Conditions** were silently bypassed.
+- [ ] Any side-effecting step was gated behind explicit human confirmation.
+
+## Gotchas
+
+- Keep `SKILL.md` under 500 lines; push detail into `references/`.
+- Keep the frontmatter `description` trigger-oriented and under 1024 chars.
+- Directory name and frontmatter `name` must stay identical.
+
+## Stop Conditions
+
+- Stop and ask if required input is missing or the request is ambiguous.
+- Stop and confirm before any irreversible or destructive action (delete, deploy,
+  overwrite, spend).
+
+## Supporting Files
+
+- `evals/evals.json` — required for every real skill; see the copy in this template
+  directory and [docs/templates/evals-template.json](../../../docs/templates/evals-template.json).
+- `evals/trigger-evals.json` — add when the skill's trigger overlaps another skill.
+- `references/`, `assets/`, `scripts/` — add only when they reduce errors (progressive
+  disclosure). Use "None" here if the skill is self-contained.

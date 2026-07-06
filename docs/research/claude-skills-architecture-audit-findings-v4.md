@@ -2,7 +2,12 @@
 
 **Prepared for:** `nguyenpv1980-wq/Claude-Skills`  
 **Prepared on:** 2026-07-06  
-**Scope:** Prior chat requirements for `AI Skills Development List` and `Claude Skills Development`, the uploaded v3 knowledge base and prompt, the current `Claude-Skills` repo, open PR #1, and current public guidance for Claude Code Skills, Agent Skills, QA automation, SaaS architecture, security, AI security, and supply-chain risk.
+**Scope:** Prior chat requirements for `AI Skills Development List` and `Claude Skills Development`, the uploaded v3 knowledge base and prompt, the current `Claude-Skills` repo, the (now merged) PR #1, and current public guidance for Claude Code Skills, Agent Skills, QA automation, SaaS architecture, security, AI security, and supply-chain risk.
+
+> **Reconciliation note (2026-07-06):** PR #1 has since been **merged** into `main`
+> (`5f6f404`). Statements below written as if PR #1 were still open are corrected in place;
+> `main` is now the product-agnostic baseline. See
+> [`docs/reconciliation/step-0-reconciliation-v4.md`](../reconciliation/step-0-reconciliation-v4.md).
 
 ---
 
@@ -16,7 +21,7 @@ The correct architecture is not “generate 300 skills at once.” The correct a
 4. **Validation and eval gates** so the repo does not become prompt bloat.
 5. **Skill supply-chain controls** because reusable `SKILL.md` files can influence tool use, file access, and side effects.
 
-The current open PR #1 is moving the repo in the right direction. It replaces the old 150-skill, product-influenced roadmap with a product-agnostic 300-skill roadmap split into category files. Treat PR #1 as the current baseline before asking Claude Code to generate actual `.claude/skills/<skill-name>/SKILL.md` files.
+PR #1 (now **merged** into `main`) moved the repo in the right direction. It replaced the old 150-skill, product-influenced roadmap with a product-agnostic 300-skill roadmap split into category files. Treat merged `main` as the current baseline before asking Claude Code to generate actual `.claude/skills/<skill-name>/SKILL.md` files.
 
 The uploaded v3 knowledge base and v3 prompt are strong, but execution should be tightened. The biggest adjustment is sequencing: build the foundation pack and validation harness first, then add specialist packs one phase at a time. Do not ask Claude to generate 50+ skills in one pass unless you are willing to accept shallow triggers, duplicated boilerplate, weak evals, and generic skills.
 
@@ -48,7 +53,7 @@ The v3 prompt already contains important constraints: actual skills only under `
 
 ### 2.3 Repo state reviewed
 
-The default branch still contains older product-specific wording. Open PR #1 updates the repo to a product-agnostic 300-skill roadmap. That PR should become the source of truth.
+PR #1 updated the repo to a product-agnostic 300-skill roadmap and has been **merged** into `main` (`5f6f404`). Merged `main` is the source of truth. The stale PR branch `docs/300-repeatable-software-saas-skills` and the older superseded branch `x` were both confirmed fully merged and deleted.
 
 ### 2.4 Current external guidance checked
 
@@ -70,7 +75,7 @@ The architecture should align with:
 
 The old main branch references specific projects. That conflicts with the updated requirement that this repo produce reusable Claude skills and agents.
 
-**Recommendation:** Continue from PR #1 or merge it. Keep product-specific skills out of this repo unless they live in downstream product repos.
+**Recommendation:** Build from merged `main` (PR #1 is merged). Keep product-specific skills out of this repo unless they live in downstream product repos.
 
 ### Finding 2 — The 300-skill roadmap is a capability map, not the implementation batch
 
@@ -88,7 +93,7 @@ The highest-risk AI-agent failure modes are guessing, editing too much, skipping
 
 A **skill** is a reusable procedure. An **agent** is a role/orchestrator that composes skills.
 
-**Recommendation:** Store skills under `.claude/skills/<skill-name>/`. Store reusable agent prompts under `docs/agents/` unless a future repo standard defines another path.
+**Recommendation:** Store skills under `.claude/skills/<skill-name>/`. **Reconciled decision (D2):** store real project subagents under `.claude/agents/<agent-name>.md` with a read-only default posture. This supersedes the earlier suggestion to keep agent prompts in `docs/agents/`. Agents compose skills; they do not duplicate skill bodies.
 
 ### Finding 5 — Evals are mandatory
 
@@ -134,11 +139,12 @@ Claude-Skills/
 │   │   └── claude-skills-architecture-audit-findings-v4.md
 │   ├── prompts/
 │   │   └── claude-skills-master-generation-prompts-v4.md
-│   └── agents/
-│       └── agent-orchestrator-prompts.md
+│   └── reconciliation/
+│       └── step-0-reconciliation-v4.md
 ├── scripts/
 │   └── validate-skills.py
 └── .claude/
+    ├── agents/               # real read-only subagents (D2)
     └── skills/
         ├── agent-startup-context-gate/
         │   ├── SKILL.md
@@ -384,7 +390,7 @@ Agents should compose skills. They should not duplicate entire skill bodies.
 
 Proceed in this order:
 
-1. Continue from or merge PR #1 as the product-agnostic source of truth.
+1. Build from merged `main` as the product-agnostic source of truth (PR #1 is merged).
 2. Add this audit/recommendation document and the v4 master prompts.
 3. Ask Claude Code to implement **Phase 0 and Phase 1 only**.
 4. Validate those skills manually and with a script.

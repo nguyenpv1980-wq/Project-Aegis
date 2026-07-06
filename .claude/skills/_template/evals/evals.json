@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "_template",
+  "description": "TEMPLATE example eval set. Every real skill must ship evals/evals.json with a happy path, an edge case, a should-not-do case, and objective assertions. Structurally validated only (no runner yet, decision D3). Replace all cases when you copy this template.",
+  "cases": [
+    {
+      "id": "positive-happy-path",
+      "type": "should_trigger",
+      "prompt": "A representative user request that SHOULD invoke this skill.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Produces the deliverable described in the skill's Output Format section.",
+          "Reads the items in Inputs to Inspect before acting.",
+          "Runs the Validation Checklist before declaring done."
+        ]
+      }
+    },
+    {
+      "id": "positive-edge-case",
+      "type": "should_trigger",
+      "prompt": "A less obvious but still in-scope request.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Handles the edge case named in the Gotchas section."
+        ]
+      }
+    },
+    {
+      "id": "negative-adjacent",
+      "type": "should_not_trigger",
+      "prompt": "An adjacent request that looks similar but is OUT of scope.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke this skill; defers to the correct skill or a plain response."
+        ]
+      }
+    },
+    {
+      "id": "stop-condition",
+      "type": "should_trigger",
+      "prompt": "A request that hits a Stop Condition (ambiguous or destructive).",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Halts and asks the human rather than proceeding."
+        ]
+      }
+    }
+  ]
+}
