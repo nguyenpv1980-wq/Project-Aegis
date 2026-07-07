@@ -625,9 +625,12 @@ Remaining roadmap skills, generated in validated batches of ≤20 (see reconcili
 
 ---
 
-## Capability map (300-skill roadmap)
+## Capability map (300+ target backlog)
 
-The full backlog lives in [`docs/300-repeatable-software-saas-skills-roadmap.md`](300-repeatable-software-saas-skills-roadmap.md):
+The strategic backlog the library was audited against lives in
+[`docs/300-repeatable-software-saas-skills-roadmap.md`](300-repeatable-software-saas-skills-roadmap.md)
+— the original 300. Per the D12 standing rule the library is NOT capped at 300 skills: this
+is a 300+ target backlog, and skills ship on demand and framework coverage, not count:
 
 | Category | Count | Document |
 | --- | ---: | --- |

@@ -414,8 +414,10 @@ targets unchanged; exact sequencing relative to Phase 7.5 and Phase 8 batches is
 This banks scope the same way the D6/D7 coverage maps did.
 
 ### Phase 8 — Backlog expansion (NEW in v4, ported from execution plan §8)
-Convert the remaining 300-skill roadmap into executable skills **in validated batches** under
-the batch rules in §4 below. Run only after Phases 0–7.5 validate cleanly.
+Convert the remaining backlog — the original 300-skill roadmap, per the D12 standing rule a
+300+ target backlog (ship on demand and framework coverage, not count) — into executable
+skills **in validated batches** under the batch rules in §4 below. Run only after
+Phases 0–7.5 validate cleanly.
 
 **Tracked backlog items — Phase 4 × OWASP Top 10:2025 (web app) gap audit (D8):**
 
