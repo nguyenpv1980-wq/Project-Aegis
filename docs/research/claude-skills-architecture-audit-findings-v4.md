@@ -368,7 +368,7 @@ Agents should compose skills. They should not duplicate entire skill bodies.
 
 ## 8. Non-Negotiable Rules
 
-1. Do not mass-generate all 300 skills at once.
+1. Do not mass-generate the backlog at once (the original 300-skill roadmap, per the D12 standing rule a 300+ target backlog — ship on demand and framework coverage, not count).
 2. Do not create product-specific feature skills in this repo.
 3. Do not create one giant engineering skill.
 4. Do not skip evals.

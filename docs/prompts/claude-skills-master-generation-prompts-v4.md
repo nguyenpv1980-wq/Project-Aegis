@@ -27,7 +27,7 @@ docs/prompts/prompt-for-claude-to-generate-skills.md
 
 If the v3 files are missing, continue from the v4 audit findings and v4 prompts. Do not stop just because the v3 files are absent.
 
-Do **not** generate all 300 skills in one pass. Build the foundation, validate it, then continue.
+Do **not** generate the backlog in one pass — the original 300-skill roadmap is a 300+ target backlog (D12 standing rule: ship on demand and framework coverage, not count). Build the foundation, validate it, then continue.
 
 ---
 
@@ -528,8 +528,10 @@ After creation, validate all skills and update the catalog.
 ```markdown
 Implement Phase 8 only, and only after Phases 0–7 validate cleanly.
 
-Goal: convert the remaining 300-skill roadmap (`docs/300-repeatable-software-saas-skills-roadmap.md`
-and `docs/skills/`) into executable skills without lowering quality.
+Goal: convert the remaining backlog (`docs/300-repeatable-software-saas-skills-roadmap.md`
+and `docs/skills/` — the original 300, per the D12 standing rule a 300+ target backlog:
+ship on demand and framework coverage, not count) into executable skills without lowering
+quality.
 
 Read:
 - every file under `docs/skills/`
