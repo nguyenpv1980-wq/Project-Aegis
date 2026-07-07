@@ -160,13 +160,56 @@ target now; the skills themselves are still built at Phase 7, not before.
 - `ai-threat-modeler`, `ai-governance-risk-reviewer`, `ai-router-architect`, and
   `ai-evaluation-harness` are cross-cutting glue across all ten categories rather than
   mapped one-to-one.
-- The **OWASP Top 10 for Agentic/Agent Applications is a separate framework** that the
-  LLM Top 10 does not cover; agentic-specific skills are a candidate **Phase 8 follow-on**,
-  not part of this Phase 7 expansion.
+- The **OWASP Top 10 for Agentic Applications is a separate framework** that the
+  LLM Top 10 does not cover; agentic-specific skills are anchored in **Phase 7.5 below**
+  (D7) — no longer a Phase 8 follow-on candidate — and are not part of this Phase 7 expansion.
+
+### Phase 7.5 — Agentic AI security (OWASP Agentic Top 10) (P1)
+
+**NEW phase (D7): canonical = 6 new skills + 3 extensions of existing skills.** Anchored to
+the **OWASP Top 10 for Agentic Applications (2026)**, ASI01–ASI10. Source:
+<https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/> (all ten
+designations and names verified 2026-07-06 against the published framework document behind
+that page). Rationale (D7): agentic risk builds on top of LLM risk (Phase 7, D6), so this
+pack runs immediately after Phase 7; it is too central to this repo's agentic workflows to
+defer into the generic Phase 8 backlog. Skills are **built at Phase 7.5, not now** — like
+the Phase 7 map above, this banks the coverage target only; today's shipped validator
+target (36 skills) is unchanged.
+
+| OWASP Agentic Top 10 (2026) | Covering skill | Status |
+|---|---|---|
+| ASI01 Agent Goal Hijack | `agent-goal-hijack-defender` *(NEW)* — goal/plan integrity across multi-step runs; builds on `prompt-injection-defender` (LLM01), which owns the injection vector | new |
+| ASI02 Tool Misuse and Exploitation | Phase 7 `agent-tool-safety-guard`, **extended** — per-tool authorization, argument validation, side-effect limits, tool-chain abuse paths | extend-existing |
+| ASI03 Identity and Privilege Abuse | `agent-identity-privilege-reviewer` *(NEW)* — agent identities, scoped credentials, delegation chains, confused-deputy paths; complements Phase 4 `secrets-identity-hardener` (credential custody) | new |
+| ASI04 Agentic Supply Chain Vulnerabilities | Phase 4 `supply-chain-security-reviewer`, **extended** again (after D6/LLM03) to MCP servers and manifests, tool/skill registries, plugin packages, A2A dependencies | extend-existing |
+| ASI05 Unexpected Code Execution (RCE) | Phase 7 `llm-output-safety-reviewer` + `agent-tool-safety-guard`, **extended** — execution of agent-generated code, sandbox boundaries, natural-language-driven execution paths | extend-existing |
+| ASI06 Memory & Context Poisoning | `memory-context-poisoning-reviewer` *(NEW)* — persistent corruption of stored context/long-term memory, cross-session and cross-tenant contamination; distinct from `model-poisoning-reviewer` (training-time, LLM04) and `rag-security-architect` (retrieval stores, LLM08) | new |
+| ASI07 Insecure Inter-Agent Communication | `inter-agent-comms-reviewer` *(NEW)* — authn, integrity, and confidentiality of agent-to-agent messages (MCP/A2A transports); spoofing and replay | new |
+| ASI08 Cascading Failures | `agent-containment-reviewer` *(NEW — merged, also owns ASI10)* — fault propagation across agent networks: blast-radius isolation, circuit breakers, checkpoints | new |
+| ASI09 Human-Agent Trust Exploitation | `human-agent-trust-reviewer` *(NEW)* — consent fatigue, deceptive or over-polished justifications that mislead human approvers; adversarial counterpart to Phase 1 `human-approval-boundary` | new |
+| ASI10 Rogue Agents | `agent-containment-reviewer` *(NEW — merged, same skill as ASI08)* — behavioral-drift detection, agent inventory/lifecycle governance, kill switches | new |
+
+- **Merged overlaps — 6 new skills, not 7+:** ASI08 and ASI10 collapse into one
+  `agent-containment-reviewer`. The source's own seam — ASI08 is fault *propagation* across
+  interconnected agents, ASI10 is the "containment gap" once behavioral drift begins — makes
+  them two halves of a single containment review (same inputs: agent topology, autonomy
+  boundaries, kill/rollback paths). It also covers the agentic slice of the Phase 7
+  expansion-backlog candidate `ai-feature-kill-switch-designer`. Nothing else collapses: the
+  source explicitly distinguishes ASI01 vs ASI06 vs ASI10 (direct goal alteration vs
+  stored-memory corruption vs autonomous drift without active attacker control).
+- **Coverage counts:** 7 of 10 categories land on new skills (6 skills after the merge);
+  3 of 10 are extensions (ASI02, ASI05 extend Phase 7 skills; ASI04 extends Phase 4
+  `supply-chain-security-reviewer`); 0 are fully covered by already-planned work.
+- **Framework relationship:** the Agentic Top 10 **extends — does not replace — the LLM
+  Top 10 (D6)**: the source states agentic apps "will not exist in isolation and will be part
+  of developing an LLM App," and its entries cross-reference LLM categories (e.g. ASI09
+  builds on LLM06 Excessive Agency and can be caused by LLM01 Prompt Injection). Agent
+  systems inherit every Phase 7 LLM-side risk; Phase 7.5 adds the autonomy, tool, identity,
+  memory, and multi-agent risks layered on top.
 
 ### Phase 8 — Backlog expansion (NEW in v4, ported from execution plan §8)
 Convert the remaining 300-skill roadmap into executable skills **in validated batches** under
-the batch rules in §4 below. Run only after Phases 0–7 validate cleanly.
+the batch rules in §4 below. Run only after Phases 0–7.5 validate cleanly.
 
 ---
 
@@ -232,6 +275,15 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
   `model-poisoning-reviewer`, `system-prompt-leakage-reviewer`, `ai-misinformation-guard`).
   Rationale: anchor the AI-security pack to a current published framework rather than an
   ad-hoc list. Source: <https://genai.owasp.org/llm-top-10/>. Coverage map in §3 Phase 7.
+- **D7 (2026-07-06) — Phase 7.5 (Agentic AI security) is added after Phase 7, anchored to
+  OWASP Agentic Top 10 (ASI01–ASI10); it extends the LLM Top 10 (D6).** Rationale: agentic
+  risk builds on top of LLM risk, so the pack runs immediately after Phase 7, and it is too
+  central to this repo's agentic workflows to defer into the generic Phase 8 backlog.
+  Canonical Phase 7.5 = 6 new skills (ASI08 and ASI10 merge into `agent-containment-reviewer`)
+  plus 3 extensions of existing skills, built at Phase 7.5 — not now. Phases 0–8 keep their
+  numbers; the shipped validator skill-count target is unchanged. Source:
+  <https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/>.
+  Coverage map in §3 Phase 7.5.
 
 ---
 
