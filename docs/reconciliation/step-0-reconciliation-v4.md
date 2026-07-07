@@ -492,6 +492,40 @@ touched — report §4 end + P15):
 - cross-cutting certainty-label convention (confirmed / inferred / unknown /
   unverified-recommend-confirming) as a candidate shared writing rule
 
+**D12.9 Architecture advisory** *(pack added by D20, 2026-07-07)*: the library's
+`architecture-designer` produces a concrete target architecture and migration plan once the
+rough shape is known, and `cloud-architecture-decider` advises on cloud provider/posture —
+but nothing advises on the architecture STYLE/PARADIGM itself (monolith vs modular monolith
+vs microservices vs event-driven vs serverless vs SOA, and hybrids). This pack fills that
+gap:
+
+- `architecture-advisor` *(candidate — not built)* — an ADVISOR that recommends an
+  architecture STYLE for what the user is building, with honest tradeoffs and a reasoned
+  recommendation — NOT a mechanical selector. Its discipline:
+  - Understand the need FIRST: interview for domain, load/traffic shape, team size and
+    operational maturity, deployment constraints, scaling and change expectations, and
+    consistency/latency needs — before advising.
+  - Lay out only the GENUINELY RELEVANT candidate styles for that situation (from monolith,
+    modular monolith, microservices, event-driven, serverless, service-oriented, and
+    hybrids) — not a textbook dump of all of them.
+  - Give pros and cons of each FOR THIS SPECIFIC CASE, not generic pros/cons.
+  - Make a CLEAR recommendation WITH its reasoning, and state explicitly what would change
+    the recommendation (the decision's sensitivity).
+  - CORE NEUTRALITY PRINCIPLE: fit the recommendation to the actual situation; resist
+    trend-chasing in BOTH directions — do not default to microservices because it is
+    fashionable, nor to monoliths because it is contrarian-safe. Often the honest answer is
+    a boring modular monolith, and the skill must be willing to say so.
+  - Compose, do NOT overlap: `architecture-advisor` picks and justifies the PARADIGM;
+    `architecture-designer` then designs the concrete target WITHIN that paradigm
+    (component maps, boundaries, migration plan); `adr-writer` records the decision. Three
+    distinct jobs in sequence. The advisor hands its recommendation to
+    `architecture-designer`.
+  - Likely auto-invocable (pure advisory/analysis, edits nothing) — to be confirmed at
+    build time.
+  - When built, to be checked by `skill-quality-reviewer` for trigger overlap against
+    `architecture-designer`, `cloud-architecture-decider`, `saas-platform-architect`, and
+    `domain-modeler`.
+
 ### Library meta / self-application (D13) — candidate skills
 
 **BANKED scope (D13, 2026-07-07) — 5 candidate skills; `skill-quality-reviewer` built
@@ -787,6 +821,16 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
   (`should_trigger` / `triggers: true`). All fixed commands live-verified against this
   repo. No new skill; 96 skills unchanged. Neighbor follow-up (`ai-closeout-reporter`
   yield clause + trigger-evals) tracked separately.
+- **D20 (2026-07-07) — `architecture-advisor` banked as a D12 candidate (candidate — not
+  built):** an advisor that recommends an architecture style/paradigm (monolith / modular
+  monolith / microservices / event-driven / serverless / SOA / hybrids) for what the user
+  is building, with situation-specific pros/cons and a reasoned, neutrality-disciplined
+  recommendation — NOT a mechanical selector. Fills the gap upstream of
+  `architecture-designer` (which designs the concrete target within a chosen paradigm) and
+  distinct from `cloud-architecture-decider` (provider/posture). Composes advisor →
+  designer → adr-writer. Anti-trend-chasing neutrality is a core principle. On-demand; not
+  built. Banked as pack D12.9 in §3; docs-only: no skill built, no phases renumbered,
+  validator skill-count target unchanged (96).
 
 ---
 
