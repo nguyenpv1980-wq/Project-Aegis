@@ -1,0 +1,70 @@
+{
+  "skill": "agent-harness-architect",
+  "description": "Trigger discrimination for the AI-specific harness design (this skill) vs the general mediated write path it builds on (command-gateway-architect), the routing internals it governs (ai-router-architect), the authority policy it enforces (agent-authorization-matrix), the in-batch loop and context seams (agentic-loop-designer, model-context-designer), and the DESIGN-vs-REVIEW seam against the agentic-security cluster (prompt-injection-defender, agent-tool-safety-guard, agent-containment-reviewer).",
+  "overlaps_with": [
+    "command-gateway-architect",
+    "ai-router-architect",
+    "agent-authorization-matrix",
+    "agentic-loop-designer",
+    "model-context-designer",
+    "prompt-injection-defender",
+    "agent-tool-safety-guard",
+    "agent-containment-reviewer"
+  ],
+  "cases": [
+    {
+      "id": "harness-design-wins-here",
+      "prompt": "Every model and tool call our agent makes should pass one server-side point that verifies who is calling from credentials, walks authenticate → authorize → entitlement → budget → input-policy before the model runs, only allows registered tools, serves versioned server-held instructions, and refuses any action it cannot audit.",
+      "expected_skill": "agent-harness-architect",
+      "should_not_trigger": ["command-gateway-architect", "ai-router-architect", "agent-tool-safety-guard"],
+      "note": "SEAM CASE (primary) — the mediation point, pre-flight ladder, closed registry, instruction custody, and fail-closed audit are the harness's six parts. No product write-path, no routing internals, no attack review is requested.",
+      "reason": "The subject is the agent's governed operating environment as a whole. It builds ON command-gateway-architect's pattern and GOVERNS what the router reaches, but the deliverable is the AI harness design."
+    },
+    {
+      "id": "product-write-path-goes-to-command-gateway-architect",
+      "prompt": "Our SaaS mutations are scattered across endpoints and the client SDK writes to tables directly; design the single command bus with validate → authenticate → authorize → derive tenant scope → idempotency → execute → audit.",
+      "expected_skill": "command-gateway-architect",
+      "should_not_trigger": ["agent-harness-architect"],
+      "note": "SEAM CASE (reverse) — the general server-mediated WRITE path for product mutations, no model/agent in sight. The harness is the AI-specific structure built on top of this pattern.",
+      "reason": "Protected product writes and tenant-scope derivation are command-gateway-architect. agent-harness-architect cites that pattern for its mediation point; it does not own the product write path."
+    },
+    {
+      "id": "routing-goes-to-ai-router-architect",
+      "prompt": "Build the model-routing layer: pick the model per task and cost, fall back when a provider is down, keep the keys server-side, add a kill switch and per-call telemetry.",
+      "expected_skill": "ai-router-architect",
+      "should_not_trigger": ["agent-harness-architect"],
+      "reason": "Provider selection, fallback, key custody, and routing telemetry are ai-router-architect (manual-only). The harness governs WHAT the router may reach via its closed registry; it does not design the routing internals."
+    },
+    {
+      "id": "authority-policy-goes-to-agent-authorization-matrix",
+      "prompt": "Write the standing policy for what our coding agents may do on their own — commit, push branches, open PRs — and what always needs a named human, like merging to protected branches or arming auto-merge.",
+      "expected_skill": "agent-authorization-matrix",
+      "should_not_trigger": ["agent-harness-architect"],
+      "reason": "Authoring the human-vs-agent authority matrix is agent-authorization-matrix (manual-only). The harness is how that matrix becomes physics — its authorize rung CALLS the policy; it never defines it."
+    },
+    {
+      "id": "loop-semantics-go-to-agentic-loop-designer",
+      "prompt": "Our agent should decide up front whether a task even needs a loop, cap its iterations, never retry a policy rejection, retry a transient failure once on identical input, and treat an empty result as a legitimate stop.",
+      "expected_skill": "agentic-loop-designer",
+      "should_not_trigger": ["agent-harness-architect"],
+      "note": "IN-BATCH SEAM (pinned both ways) — iteration ceilings, typed retryability, and honest terminal states are the loop's semantics. The loop runs INSIDE the harness and each iteration's calls still pass the ladder, but nothing here asks for the environment's gating.",
+      "reason": "Loop shape, bounds, and stopping are agentic-loop-designer. agent-harness-architect owns the per-call gating environment the loop runs inside."
+    },
+    {
+      "id": "context-content-goes-to-model-context-designer",
+      "prompt": "Decide what actually goes into the model's context window each call — assembled server-side under hard token caps, secrets on a transient channel, exclusions documented, and what it saw reconstructible afterward.",
+      "expected_skill": "model-context-designer",
+      "should_not_trigger": ["agent-harness-architect"],
+      "note": "IN-BATCH SEAM — the harness gates the CALL; the context designer curates the CONTENT that rides in it.",
+      "reason": "Context assembly, caps, minimization, and reconstructibility are model-context-designer. The harness's input-policy rung checks the schema at the gate; it does not decide the context diet."
+    },
+    {
+      "id": "attack-review-goes-to-security-cluster",
+      "prompt": "Review our agent harness for attacks: can injected content in a retrieved document change its instructions, can a tool be abused beyond its intended scope, and would a compromised agent be contained?",
+      "expected_skill": "prompt-injection-defender",
+      "should_not_trigger": ["agent-harness-architect"],
+      "note": "DESIGN-vs-REVIEW SEAM (mandatory) — this is the attack review of an existing harness: injection → prompt-injection-defender, tool abuse → agent-tool-safety-guard, containment → agent-containment-reviewer. agent-harness-architect PRODUCES the artifact these skills review; it never runs the attack audit.",
+      "reason": "Attack review of the harness belongs to the agentic-security cluster. This skill designs the harness well in the first place; reviewing it for attacks is the named reviewers' lane."
+    }
+  ]
+}

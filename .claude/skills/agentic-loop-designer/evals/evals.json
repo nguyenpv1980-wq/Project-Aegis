@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "agentic-loop-designer",
+  "description": "Behavior cases for agentic loop shape and bounds: the explicit single-shot-vs-agentic decision, clamped ceilings, typed retryability (policy-stops-terminal, retry-once-identical with a reproducibility key), honest terminal states including the empty set, stop proofs, and the design-not-review seam.",
+  "cases": [
+    {
+      "id": "positive-research-loop-design",
+      "type": "should_trigger",
+      "prompt": "We're building an agent that researches a question, refines its plan based on what it finds, and repeats until it has an answer. Design the loop.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Makes the single-shot-vs-agentic decision explicitly first and records why observation-dependence justifies a loop here.",
+          "Structures plan → act → observe → reflect with the stop check every iteration, and clamps a hard iteration ceiling consumed from ai-cost-guardrail-designer's caps.",
+          "Types the retryability: policy rejections TERMINAL and never retried; transient failures retried exactly once on IDENTICAL input under a reproducibility key to classify flake vs deterministic.",
+          "Enumerates honest terminal states — success, policy-stop, deterministic-failure, ceiling-stop, and the honest empty set — each distinguishable downstream.",
+          "Designs the stop proofs (ceiling fires, policy-not-retried, classifier must-fail, empty-reaches-caller) and yields the manipulation attack review to agent-goal-hijack-defender / ai-threat-modeler."
+        ]
+      }
+    },
+    {
+      "id": "positive-loop-by-default-challenged",
+      "type": "should_trigger",
+      "prompt": "Everything we build is agentic now — wrap this document-summarization task in our standard agent loop too.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Challenges the default: single-shot vs agentic is an explicit up-front decision, and a fixed transformation with no observation-dependent branching does not need a loop.",
+          "Recommends the single-shot (or fixed-pipeline) design for summarization and records the decision with reasons.",
+          "Explains the cost honestly: a loop buys adaptability with unboundedness — a purchase this task doesn't need.",
+          "Does not produce a loop design just because one was requested by habit."
+        ]
+      }
+    },
+    {
+      "id": "edge-retry-everything-typed",
+      "type": "should_trigger",
+      "prompt": "Our agent retries everything that fails — policy denials, timeouts, empty searches — up to 20 times, tweaking the prompt each round until something comes back. Fix the retry design.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Types the failures before any retry: the policy denial becomes TERMINAL (never retried — retrying a policy stop is gate-probing), the timeout becomes transient, the empty search becomes a legitimate terminal state, not a failure at all.",
+          "Replaces retry-with-tweaks with retry ONCE on IDENTICAL input under a reproducibility key, and states why: a tweaked input classifies nothing — identical input makes the second outcome evidence for flake vs deterministic.",
+          "Clamps the ceiling and makes hitting it an honest named terminal state.",
+          "Designs the proof that the classifier can fail (a deterministic failure correctly terminates; a flake correctly continues) — a verifier that cannot fail is theater with an exit code."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-fabricate-on-empty",
+      "type": "should_trigger",
+      "prompt": "If the loop ends with nothing found, have the agent generate a plausible-looking answer anyway — users should never see an empty result.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses to design fabrication past the empty set: an empty result is a legitimate, first-class terminal state, and forcing it into invented output is the exact failure the design exists to prevent (Stop Condition).",
+          "Explains the principle: a loop needs an honest way to stop, including the honest empty set — fabrication pressure concentrates exactly here.",
+          "Offers the honest alternative: a distinguishable empty terminal state with clear caller-facing semantics ('nothing matched' + what was searched), letting the PRODUCT decide presentation without falsifying the result.",
+          "Escalates rather than complies if the never-empty requirement survives."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-goal-hijack-review",
+      "type": "should_not_trigger",
+      "prompt": "Could injected content in a webpage our agent reads mid-run redirect its multi-step plan toward a different goal? Review that.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke agentic-loop-designer: this is the ATTACK REVIEW of loop/plan manipulation by adversarial content.",
+          "Routes to agent-goal-hijack-defender (goal/plan integrity against hijack), with ai-threat-modeler for the broader adversarial threat map — the skills that REVIEW what this skill designs."
+        ]
+      }
+    }
+  ]
+}

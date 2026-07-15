@@ -53,11 +53,16 @@ checks that every *implemented* skill is listed here and in `README.md`.
 > cluster (D31, 161→171) and the 4-skill LOW-PRIORITY set (D32, 171→175) —
 > bringing the library to **175 skills** (the D33 `skill-quality-reviewer`
 > sweep applied corrections only, no count change; D34–D36 were
-> documentation-only). Most recently the **D38** build added
+> documentation-only). The **D38** build added
 > `project-orchestrator` — the beginner-facing, top-level lifecycle router that
 > takes a non-developer from a vague idea to a shipped product by detecting the
-> current stage and routing to the library's existing skills (175→176) —
-> bringing the library to its current **176 skills**.
+> current stage and routing to the library's existing skills (175→176). Most
+> recently the **D42** build made the doctrine's D41 inward-facing pillars real —
+> the CONSTRAIN/CURATE design pack (`agent-harness-architect`,
+> `model-context-designer`, `agentic-loop-designer`, plus an extension of
+> `structured-output-validator`), the DESIGN skills for the AI's own operating
+> environment (harness, context, loop) that PRODUCE what the agentic-security
+> clusters REVIEW (176→179) — bringing the library to its current **179 skills**.
 > `_template` remains a reference template ignored by the validator.
 > Everything under "Backlog" is planned, not built.
 
@@ -431,7 +436,7 @@ absorbs the AI security test harness (no separate `ai-security-test-harness`).
 | `ai-cost-guardrail-designer` | LLM10 (DoS/denial-of-wallet) | yes | Consumption guardrails: per-request token caps, tenant-scoped budgets/rate limits, agent loop/recursion bounds, fail-safe degraded mode + kill switch, burn-rate alerts before exhaustion; composes saas-cost-architect + observability-operator. |
 | `ai-governance-risk-reviewer` | cross-cutting | yes | AI governance/risk posture: impact-based risk tiering, oversight-to-tier matching, accountable ownership, AI disclosure/consent, model/feature card, obligation→control mapping (EU AI Act tiers, NIST AI RMF) without asserting legal conclusions; composes ai-sdlc-operating-model + agent-governance-audit. |
 | `ai-router-architect` | cross-cutting | **no** (manual-only; wires live providers/credentials) | Centralized model-routing layer: one interface, server-side-only credentials, task/cost routing, choke-point cost enforcement, per-call telemetry, resilient fallback + circuit breaker + no-deploy kill switch, idempotent retries; composes secrets-identity-hardener + observability-operator. |
-| `structured-output-validator` | LLM05 companion | yes | Output-shape contract: schema (fields/types/enums/ranges), validate-before-use, semantic checks beyond shape (tenant-scoped ids), bounded failure handling; shape-is-not-safety handoffs to llm-output-safety-reviewer + agent-tool-safety-guard. |
+| `structured-output-validator` | LLM05 companion | yes | Output-shape contract (extended in D42): schema (fields/types/enums/ranges) encoded in TYPES where possible (non-compliant output unrepresentable), the validate-before-use ladder (parse → strict schema → policy/banned-content scan; failures logged as safety evidence + rejected, never silently repaired), semantic checks beyond shape (tenant-scoped ids), bounded shape-only repair-retry; shape-is-not-safety handoffs to llm-output-safety-reviewer + agent-tool-safety-guard. |
 | `sensitive-disclosure-guard` | LLM02 *(NEW)* | yes | Disclosure defense: data-minimization + pre-model redaction of secrets/PII/other-tenant data, output-path echo/bleed checks, log redaction at emission, provider retention/training posture; composes tenant-isolation-reviewer + secrets-identity-hardener. |
 | `model-poisoning-reviewer` | LLM04 *(NEW)* | yes | Training/feedback/ingestion integrity: contributor-trust assessment, poisoning paths, feedback-loop Sybil defense, ingestion-as-truth integrity, provenance/holdout controls; acquire-vs-ingest boundary with supply-chain-security-reviewer. |
 | `system-prompt-leakage-reviewer` | LLM07 *(NEW)* | yes | Two axes: no secrets in the prompt (extract + rotate via secrets-identity-hardener) AND no security dependence on prompt secrecy — **system prompts are NOT security controls**; enforcement is deterministic and lives OUTSIDE the LLM; extraction-is-harmless framing. |
@@ -507,6 +512,46 @@ ASI01), `model-poisoning-reviewer` (LLM04 vs ASI06), `rag-security-architect`
 `observability-operator`, `agent-governance-audit`, `ai-misinformation-guard`,
 `ai-governance-risk-reviewer`, and the `ai-security-red-team-reviewer`
 **subagent**.
+
+### Skills (D42 — CONSTRAIN/CURATE design pack: harness, context, loop)
+
+The design-side complement to Phases 7/7.5: three skills that make the
+doctrine's D41 inward-facing pillars (**CONSTRAIN**, **CURATE**) real by
+DESIGNING the AI's own operating environment — the harness it runs in, the
+context it is fed, the loop it executes — plus a scoped extension of
+`structured-output-validator` (CURATE's output side: type-level policy
+encoding + a named policy/banned-content scan ladder step). Generalized,
+product-agnostic patterns from a read-only audit of two real production
+implementations (the D40 discovery). The load-bearing seam is
+**design-not-review**: these skills PRODUCE the artifacts the agentic-security
+clusters REVIEW — each yields the attack review explicitly
+(harness → `prompt-injection-defender` / `agent-tool-safety-guard` /
+`agent-containment-reviewer`; context → `memory-context-poisoning-reviewer`;
+loop → `agent-goal-hijack-defender` / `ai-threat-modeler`) and keeps only the
+design job. The in-batch harness ↔ loop seam is pinned both ways (the loop
+runs INSIDE the harness; every iteration's calls still pass its ladder). All
+three thread the VERIFY principle: *a verifier that cannot fail is theater
+with an exit code — every check must be proven able to fail before it counts.*
+All are pure design skills (specs only, no side effects) and stay
+model-invocable; every one ships `evals/evals.json` **and**
+`evals/trigger-evals.json`.
+
+| Skill | Pillar | Model-invocable? | Trigger summary |
+| --- | --- | --- | --- |
+| `agent-harness-architect` | CONSTRAIN | yes | The governed operating environment: ONE server-side mediation point every model/tool call crosses; identity from credentials (never model-supplied), propagated; deny-by-default pre-flight ladder (authenticate → authorize → entitlement → budget → input policy) BEFORE the model runs, each rung fail-closed; CLOSED tool/provider registry (unknown capability fails); server-side versioned instruction custody; fail-closed audit (cannot-record ⇒ does-not-execute). Builds on `command-gateway-architect`; enforces `agent-authorization-matrix`; yields attack review to the agentic-security cluster. |
+| `model-context-designer` | CURATE | yes | Per-call context curation: server-side assembly under hard token/size caps with designed degradation; closed input schemas; secret/PII/raw-payload minimization with an explicit persisted-vs-transient split (transient = never persisted); honest reconstructibility (content / reference+version / class+hash); designed, documented exclusions. ≠ `agent-startup-context-gate` (session-start), `ai-cost-guardrail-designer` (cap price vs content), `rag-security-architect` (retrieval authz); yields poisoning review to `memory-context-poisoning-reviewer`. |
+| `agentic-loop-designer` | CONSTRAIN | yes | Loop shape and bounds: single-shot-vs-agentic as an explicit up-front decision; clamped iteration ceilings; TYPED retryability (policy rejection TERMINAL and never retried; transient retried once on IDENTICAL input under a reproducibility key to classify flake vs deterministic); honest terminal states incl. the honest empty set (never padded into fabricated output); plan-act-observe-reflect with stop proofs. Consumes `ai-cost-guardrail-designer` caps; runs INSIDE `agent-harness-architect`'s harness; yields manipulation review to `agent-goal-hijack-defender` / `ai-threat-modeler`. |
+
+Trigger-overlap coverage (`evals/trigger-evals.json`) ships for all three as
+one design-pack cluster: the in-batch harness ↔ loop and harness ↔ context
+seams pinned both ways, plus the mandatory DESIGN-vs-REVIEW discrimination
+against `prompt-injection-defender`, `agent-tool-safety-guard`,
+`agent-containment-reviewer`, `memory-context-poisoning-reviewer`,
+`agent-goal-hijack-defender`, and `ai-threat-modeler`, and neighbor
+discrimination against `command-gateway-architect`, `ai-router-architect`,
+`agent-authorization-matrix`, `agent-startup-context-gate`,
+`ai-cost-guardrail-designer`, `rag-security-architect`,
+`sensitive-disclosure-guard`, and `agent-failure-recovery`.
 
 ### Skills (Compliance & Governance batch — D9)
 
