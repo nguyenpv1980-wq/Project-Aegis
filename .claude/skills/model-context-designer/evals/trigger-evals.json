@@ -1,0 +1,68 @@
+{
+  "skill": "model-context-designer",
+  "description": "Trigger discrimination for runtime per-call context curation (this skill) vs session-start context loading (agent-startup-context-gate), spend caps (ai-cost-guardrail-designer), retrieval authorization (rag-security-architect), redaction mechanics (sensitive-disclosure-guard), the in-batch call-gating seam (agent-harness-architect), and the DESIGN-vs-REVIEW seam against memory-context-poisoning-reviewer.",
+  "overlaps_with": [
+    "agent-startup-context-gate",
+    "ai-cost-guardrail-designer",
+    "rag-security-architect",
+    "sensitive-disclosure-guard",
+    "agent-harness-architect",
+    "memory-context-poisoning-reviewer"
+  ],
+  "cases": [
+    {
+      "id": "context-curation-wins-here",
+      "prompt": "Decide what goes into our model's context each call: which segments from which sources, assembled server-side under hard token caps with a designed truncation order, sensitive values on a transient never-persisted channel, exclusions documented, and what it saw reconstructible afterward.",
+      "expected_skill": "model-context-designer",
+      "should_not_trigger": ["agent-startup-context-gate", "ai-cost-guardrail-designer", "rag-security-architect"],
+      "note": "SEAM CASE (primary) — segments, caps, schemas, the persisted/transient split, reconstructibility, and designed exclusions are the curation contract. No session-start verification, no budget authoring, no retrieval authz is requested.",
+      "reason": "The subject is per-call context content: what enters and leaves the window. The cost of the capped space and the authorization of the retriever are consumed from their owning skills, not designed here."
+    },
+    {
+      "id": "session-start-goes-to-startup-gate",
+      "prompt": "Before the agent starts work in this repository, verify it is the intended repo from the git remote and landmark files, read the project instructions and status docs, and separate verified facts from assumptions.",
+      "expected_skill": "agent-startup-context-gate",
+      "should_not_trigger": ["model-context-designer"],
+      "note": "SEAM CASE (pinned) — session-START context: proving the agent is in the right place with current governing docs before any work. A different moment from per-call window assembly, with a different failure mode (building in the wrong place vs feeding the model wrong content).",
+      "reason": "Startup verification and context loading are agent-startup-context-gate. model-context-designer owns the RUNTIME per-call assembly of the model's window."
+    },
+    {
+      "id": "spend-caps-go-to-cost-guardrail",
+      "prompt": "Set the token budgets for our AI feature: per-request input/output caps, per-tenant monthly budgets, cost-aware rate limits, and a kill switch before the bill explodes.",
+      "expected_skill": "ai-cost-guardrail-designer",
+      "should_not_trigger": ["model-context-designer"],
+      "note": "SEAM CASE — the cap is a COST decision; the curation is a CONTENT decision. This prompt is entirely about pricing and bounding spend.",
+      "reason": "Budgets, caps-as-policy, and rate limits are ai-cost-guardrail-designer. model-context-designer decides what the capped space carries, consuming those caps as an input."
+    },
+    {
+      "id": "retrieval-authz-goes-to-rag-security-architect",
+      "prompt": "Make sure our vector search only ever returns documents the calling user and tenant are allowed to see, enforced in the query itself, with per-tenant index scoping.",
+      "expected_skill": "rag-security-architect",
+      "should_not_trigger": ["model-context-designer"],
+      "reason": "Authorization at retrieval time and vector-store tenant scoping are rag-security-architect. model-context-designer curates what the already-authorized retrieval feeds into the window."
+    },
+    {
+      "id": "redaction-mechanics-go-to-sensitive-disclosure-guard",
+      "prompt": "Add pre-model redaction of secrets and PII, check the output paths for echoed sensitive data, and redact the logs at emission.",
+      "expected_skill": "sensitive-disclosure-guard",
+      "should_not_trigger": ["model-context-designer"],
+      "reason": "Redaction mechanics and output-path echo/bleed checks are sensitive-disclosure-guard. model-context-designer decides the context diet those controls apply to — minimization decisions, not redaction implementation."
+    },
+    {
+      "id": "call-gating-goes-to-agent-harness-architect",
+      "prompt": "Every model call should be gated before it runs: identity from credentials, a deny-by-default authorize/entitlement/budget ladder, a closed tool registry, and a fail-closed audit write.",
+      "expected_skill": "agent-harness-architect",
+      "should_not_trigger": ["model-context-designer"],
+      "note": "IN-BATCH SEAM (pinned both ways) — the harness gates the CALL; this skill curates the CONTENT that rides in it. Nothing here asks what fills the window.",
+      "reason": "Mediation, the pre-flight ladder, registry, and audit are agent-harness-architect. model-context-designer owns what enters and leaves the window of a call the harness has already gated."
+    },
+    {
+      "id": "poisoning-review-goes-to-memory-context-poisoning-reviewer",
+      "prompt": "Review our agent's memory and stored context for poisoning: can a user's message get persisted as a trusted fact, survive into later sessions, or bleed into another tenant's context?",
+      "expected_skill": "memory-context-poisoning-reviewer",
+      "should_not_trigger": ["model-context-designer"],
+      "note": "DESIGN-vs-REVIEW SEAM (mandatory) — this is the attack review of stored context/memory. model-context-designer PRODUCES the curated-context artifact that reviewer examines; it never runs the poisoning audit.",
+      "reason": "Poisoning, cross-session trust, and cross-tenant bleed of stored context are memory-context-poisoning-reviewer's lane. This skill designs the curated context in the first place."
+    }
+  ]
+}

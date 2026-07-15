@@ -1,6 +1,6 @@
 ---
 name: structured-output-validator
-description: Design the schema and validation strategy for an LLM's structured output so downstream code never trusts an unvalidated model response — define the output contract (JSON Schema / typed shape with required fields, types, enums, ranges, formats), validate every response against it BEFORE use, and specify failure handling (reject, repair-and-retry with bounded attempts, or fall back) plus semantic checks beyond shape (values in allowed sets, ids tenant-scoped, referential sanity). Shape-valid is not safe-to-act: validated output still passes to llm-output-safety-reviewer for sinks and agent-tool-safety-guard for tool authorization. Use when a model returns JSON/structured data an app parses, or to make an AI output contract enforceable. Do NOT use for injection/execution sinks (llm-output-safety-reviewer), tool permissions (agent-tool-safety-guard), factual accuracy (ai-misinformation-guard), or the routing layer (ai-router-architect).
+description: Design the schema and validation strategy for an LLM's structured output so downstream code never trusts an unvalidated response — define the output contract (fields, types, enums, ranges, formats), encode it in TYPES where possible so non-compliant output is unrepresentable, and walk every response up the ladder BEFORE use: parse → strict schema → policy/banned-content scan — failures logged as safety evidence and rejected, never silently repaired — plus bounded failure handling and semantic checks beyond shape (allowed sets, tenant-scoped ids, referential sanity). Shape-valid is not safe-to-act: validated output still goes to llm-output-safety-reviewer (sinks) and agent-tool-safety-guard (tool authz). Use when a model returns JSON/structured data an app parses, or to make an AI output contract enforceable. Do NOT use for injection/execution sinks (llm-output-safety-reviewer), tool permissions (agent-tool-safety-guard), factual accuracy (ai-misinformation-guard), or the routing layer (ai-router-architect).
 ---
 
 # Structured Output Validator
@@ -9,14 +9,17 @@ description: Design the schema and validation strategy for an LLM's structured o
 
 Make an LLM's structured output safe for code to consume by treating the model
 response as untrusted input that must conform to an explicit contract before
-anything acts on it. The deliverable is: the output schema (required fields,
-types, enums, ranges, formats), the validate-before-use strategy, the failure
-handling (reject / bounded repair-retry / fallback), and the semantic checks
-that shape validation alone misses (value allowlists, tenant-scoped ids,
-referential sanity). Crucially, shape-valid ≠ safe-to-act: this skill hands
-validated output onward to `llm-output-safety-reviewer` (sinks) and
-`agent-tool-safety-guard` (tool authorization), which own the harm-prevention
-half.
+anything acts on it. The deliverable is: the output contract (required fields,
+types, enums, ranges, formats) — encoded at the TYPE level where possible so a
+non-compliant output is unrepresentable, not merely rejected; the fixed
+validate-before-use ladder every response walks (parse → strict schema →
+policy/banned-content scan), whose failures are logged as safety evidence and
+rejected, never silently repaired; the failure handling (reject / bounded
+repair-retry / fallback); and the semantic checks that shape validation alone
+misses (value allowlists, tenant-scoped ids, referential sanity). Crucially,
+shape-valid ≠ safe-to-act: this skill hands validated output onward to
+`llm-output-safety-reviewer` (sinks) and `agent-tool-safety-guard` (tool
+authorization), which own the harm-prevention half.
 
 ## Use When
 
@@ -52,47 +55,74 @@ half.
 
 ## Workflow
 
-1. **Define the output contract.** Specify the schema: required vs optional
-   fields, types, enums, numeric ranges, string formats/lengths, array bounds,
-   nesting. Make "what the code assumes" explicit and enforceable. No
-   downstream usage/contract to inspect → Stop Conditions.
-2. **Validate before use, always.** Every model response is parsed AND
-   validated against the schema before any field is read or acted on. Direct
-   use of `JSON.parse` output without validation is the finding this closes.
-   Use provider JSON-mode/tool-schema to constrain generation, but STILL
-   validate — provider modes reduce, not eliminate, malformed output.
+1. **Define the output contract — in types where possible.** Specify the
+   schema: required vs optional fields, types, enums, numeric ranges, string
+   formats/lengths, array bounds, nesting. Make "what the code assumes"
+   explicit and enforceable. Then encode the contract at the TYPE level where
+   the implementation language allows — enums/sum types instead of free
+   strings, branded ids, bounded collections — so a non-compliant output is
+   UNREPRESENTABLE in downstream code, not merely caught: make the illegal
+   state impossible, not just detected. The runtime schema still guards the
+   wire, where types cannot reach. No downstream usage/contract to inspect →
+   Stop Conditions.
+2. **Validate before use, always — as a fixed ladder.** Every model response
+   walks parse → strict schema → policy/banned-content scan (step 4) before
+   any field is read or acted on. Direct use of `JSON.parse` output without
+   validation is the finding this closes. Use provider JSON-mode/tool-schema
+   to constrain generation, but STILL validate — provider modes reduce, not
+   eliminate, malformed output.
 3. **Add semantic validation beyond shape** using
    [references/output-validation-patterns.md](references/output-validation-patterns.md):
    values in allowed sets (not just "is a string"), ids that exist and are
    tenant-scoped to the caller, cross-field consistency, referential sanity.
    A schema-valid response can still carry a wrong-tenant id.
-4. **Specify failure handling.** On validation failure choose per use case:
+4. **Run the policy/banned-content scan as a NAMED ladder step.** After parse
+   and schema, scan for content the contract BANS: denylisted terms or
+   content classes, embedded links or instructions where none belong,
+   anything the feature must never emit. A scan failure is LOGGED AS SAFETY
+   EVIDENCE (what was caught, when, from which input class) and the output
+   REJECTED — never silently repaired or stripped-and-passed: a quietly
+   repaired violation destroys the evidence and hides the trend. Prove the
+   scan can fail by seeding a banned-content fixture through it — a verifier
+   that cannot fail is theater with an exit code.
+5. **Specify failure handling.** On validation failure choose per use case:
    reject (fail closed — safest), bounded repair-retry (re-prompt with the
    error, capped attempts to avoid a cost loop), or fallback (default/degraded
    response). Never silently coerce or partially use invalid output.
-5. **Guard the tool-argument case.** When output becomes tool/function
+   Repair-retry is for SHAPE failures only — a policy/banned-content failure
+   is rejected and logged, never repaired into acceptability.
+6. **Guard the tool-argument case.** When output becomes tool/function
    arguments, validation is the precondition to dispatch — but authorization
    is still `agent-tool-safety-guard`'s job (valid shape, wrong permission =
    still blocked). State the handoff.
-6. **Hand off the safety half.** Validated output going to a render/exec/URL/
+7. **Hand off the safety half.** Validated output going to a render/exec/URL/
    store sink goes to `llm-output-safety-reviewer` — shape validity does not
    sanitize an XSS payload in a string field. Make the handoff explicit.
-7. **Design the validation tests.** Cases: missing required field, wrong type,
+8. **Design the validation tests.** Cases: missing required field, wrong type,
    out-of-range/enum value, extra/unexpected fields, wrong-tenant id, empty/
-   truncated response, non-JSON text — each with the expected handling. Hand
-   to `ai-evaluation-harness` for the schema-adherence dimension.
+   truncated response, non-JSON text, banned content inside a schema-valid
+   response — each with the expected handling (the banned-content case must
+   show log-and-reject, not repair). Hand to `ai-evaluation-harness` for the
+   schema-adherence dimension.
 
 ## Output Format
 
 ```
 STRUCTURED OUTPUT CONTRACT — <feature>
 Schema: <fields: required/type/enum/range/format | nesting | array bounds>
-Validate-before-use: <where validation runs, before which action>
+Type-level encoding: <what the types make unrepresentable | where the runtime
+  schema still guards the wire>
+Validation ladder: parse → strict schema → policy/banned-content scan
+  (<where it runs, before which action>)
 Semantic checks: <value allowlists | tenant-scoped ids | cross-field/referential>
-Failure handling: <reject | bounded repair-retry (cap) | fallback> per case
+Policy scan: <banned classes | failures logged as safety evidence + rejected,
+  never repaired | proven able to fail (fixture)>
+Failure handling: <reject | bounded repair-retry (cap, shape-only) | fallback>
+  per case
 Provider constraint: <JSON-mode/tool-schema used — still validated>
 Handoffs: sinks → llm-output-safety-reviewer | tool args → agent-tool-safety-guard
-Validation tests: <malformed cases → expected handling> (→ ai-evaluation-harness)
+Validation tests: <malformed + banned-content cases → expected handling>
+  (→ ai-evaluation-harness)
 Residual risk: <what remains + named acceptor>
 ```
 
@@ -100,12 +130,19 @@ Residual risk: <what remains + named acceptor>
 
 - [ ] The output contract is explicit: required fields, types, enums, ranges,
       formats — matching what downstream code assumes.
-- [ ] Every response is validated against the schema BEFORE any field is used;
-      no direct use of parsed-but-unvalidated output.
+- [ ] The contract is encoded at the type level where the language allows —
+      illegal outputs unrepresentable, with the runtime schema still guarding
+      the wire.
+- [ ] Every response walks the full ladder (parse → strict schema →
+      policy/banned-content scan) BEFORE any field is used; no direct use of
+      parsed-but-unvalidated output.
 - [ ] Semantic checks beyond shape are present (value allowlists, tenant-scoped
       ids, referential sanity).
+- [ ] The policy/banned-content scan is a named ladder step; its failures are
+      logged as safety evidence and rejected — never silently repaired — and
+      the scan is proven able to fail.
 - [ ] Failure handling is defined per case and never silently coerces or
-      partially uses invalid output; repair-retry is bounded.
+      partially uses invalid output; repair-retry is bounded and shape-only.
 - [ ] Tool-argument outputs are validated pre-dispatch, with authorization
       explicitly handed to `agent-tool-safety-guard`.
 - [ ] Sink-bound validated output is explicitly handed to
@@ -122,6 +159,12 @@ Residual risk: <what remains + named acceptor>
   (semantic check + `agent-tool-safety-guard`).
 - Fail closed by default: reject invalid output; repair-retry is bounded to
   avoid a cost/latency loop; never partially act on an invalid response.
+- The ladder is fixed — parse → strict schema → policy/banned-content scan —
+  and nothing acts on a response until it clears all three; scan failures
+  are safety evidence (logged) and rejections (never silently repaired).
+- A validator or scan that has never failed in a test is unproven — a
+  verifier that cannot fail is theater with an exit code; prove each rung
+  can fail before trusting it.
 - Provider JSON-mode is a generation aid, not a validator — always validate
   on receipt.
 
@@ -138,6 +181,12 @@ Residual risk: <what remains + named acceptor>
   `ai-cost-guardrail-designer`).
 - Coercion hides failures: silently defaulting a missing field or truncating
   an out-of-range number produces confidently wrong behavior. Reject instead.
+- Silently repairing a policy violation — stripping the banned bit and
+  passing the rest — hides the very trend the safety log exists to show;
+  the rejection IS the signal.
+- Type-level encoding is compile-time only: the wire is untyped, so types
+  without the runtime schema at the boundary are false comfort — you need
+  both, each guarding what the other cannot.
 - Extra fields can smuggle: a response with unexpected keys the code later
   spreads into an object can inject state. Reject unknown fields where it
   matters.

@@ -1717,6 +1717,23 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
     patterns; no product/company names, private paths, or PR numbers.
   - Validator: 176 skills, exit 0.
 
+- **D42 (2026-07-15) — Built the CONSTRAIN/CURATE design skills (176→179).**
+  `agent-harness-architect` (CONSTRAIN — the governed operating environment: single
+  mediation point, deny-by-default pre-flight ladder, closed registry, server-side
+  instruction custody, fail-closed audit), `model-context-designer` (CURATE —
+  server-side context assembly under caps, closed schemas, PII/secret minimization,
+  designed exclusions, reconstructible context), `agentic-loop-designer` (CONSTRAIN —
+  single-shot-vs-agentic decision, clamped iterations, typed retryability with
+  policy-stops-terminal, honest empty-set termination), + extended
+  `structured-output-validator` (CURATE — type-level policy encoding + banned-content
+  scan ladder step). These are the DESIGN skills for harness/context/loop engineering —
+  they PRODUCE what the agentic-security cluster REVIEWS (seam: design-not-review,
+  yielded explicitly). Threads the "a verifier that cannot fail is theater with an exit
+  code" principle. Generalized from a read-only audit of two real production
+  implementations (D40). Doctrine's D41 planned markers now shipped. To be checked by
+  `skill-quality-reviewer` + `library-diff-reviewer` for the design-vs-review seam.
+  - Validator: 179 skills, exit 0.
+
 ---
 
 ## 6. Post-merge corrections

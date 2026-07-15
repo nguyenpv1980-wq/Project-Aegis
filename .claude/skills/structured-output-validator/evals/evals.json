@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-skill-evals.json",
   "skill": "structured-output-validator",
-  "description": "Trigger and behavior cases for structured output validation: explicit output contract, validate-before-use, semantic checks beyond shape (tenant-scoped ids), bounded failure handling, shape-is-not-safety handoffs.",
+  "description": "Trigger and behavior cases for structured output validation: explicit output contract, type-level policy encoding (illegal states unrepresentable), the fixed validate-before-use ladder (parse → strict schema → policy/banned-content scan), semantic checks beyond shape (tenant-scoped ids), bounded failure handling, log-and-reject (never silent repair), shape-is-not-safety handoffs.",
   "cases": [
     {
       "id": "positive-json-contract",
@@ -51,6 +51,33 @@
           "Refuses silent coercion/defaulting: it produces confidently wrong behavior from invalid output.",
           "Requires fail-closed rejection (or a bounded, explicit repair-retry) instead of quietly patching the response.",
           "Notes unbounded repair-retry would risk a cost loop and must be capped, composing ai-cost-guardrail-designer."
+        ]
+      }
+    },
+    {
+      "id": "positive-type-level-encoding",
+      "type": "should_trigger",
+      "prompt": "Our model output contract lives in a JSON Schema we check at runtime, but downstream code still passes the status around as a plain string and invalid combinations slip through after validation. Tighten the contract.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Encodes the contract at the type level where the language allows — enums/sum types for the status, branded ids, bounded collections — so a non-compliant output is UNREPRESENTABLE downstream, not merely rejected at the boundary.",
+          "Keeps the runtime schema guarding the wire and states why both are needed: the wire is untyped, types are compile-time only.",
+          "Frames it as make-the-illegal-state-impossible, not just caught."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-silent-policy-repair",
+      "type": "should_trigger",
+      "prompt": "When the banned-content scan flags something in an otherwise valid response, just strip the flagged part and pass the rest through so users aren't disrupted — no need to log it.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses the strip-and-pass design: a policy/banned-content failure is REJECTED and LOGGED AS SAFETY EVIDENCE, never silently repaired — quiet repair destroys the evidence and hides the attack/regression trend.",
+          "Keeps the scan as a named ladder step (parse → strict schema → policy/banned-content scan) whose failures fail closed.",
+          "Distinguishes shape failures (bounded repair-retry allowed) from policy failures (never repaired).",
+          "Requires the scan be proven able to fail via a seeded banned-content fixture — a verifier that cannot fail is theater with an exit code."
         ]
       }
     }

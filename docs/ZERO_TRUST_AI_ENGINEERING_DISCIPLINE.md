@@ -136,13 +136,13 @@ inside: the harness it runs in, the context it is fed, the loop it executes.
 *The harness is the contract. An agent's authority should be a property of its environment,
 not of its obedience.*
 
-- **`agent-harness-architect` (planned — D42)** — every model call passes ONE server-side
+- **`agent-harness-architect` (shipped — D42)** — every model call passes ONE server-side
   choke point that verifies identity from credentials (never from payload) and walks a
   deny-by-default ladder (permission, entitlement, budget, input policy) before the model
   runs; the tool/provider registry is closed so an unknown capability fails closed;
   instructions are server-side versioned artifacts no untrusted party can supply; and the
   audit write is fail-closed — an action that cannot be recorded does not happen.
-- **`agentic-loop-designer` (planned — D42)** — every loop has clamped iterations, typed
+- **`agentic-loop-designer` (shipped — D42)** — every loop has clamped iterations, typed
   retryability, and honest terminal states: a policy rejection is never retried; a failed
   check is retried once on identical input to classify flake vs deterministic; an empty
   result is a legitimate stop, never forced into output.
@@ -154,7 +154,7 @@ not of its obedience.*
 
 *The context window is a supply chain. Feed the model a curated diet, not access.*
 
-- **`model-context-designer` (planned — D42)** — what enters the window is assembled
+- **`model-context-designer` (shipped — D42)** — what enters the window is assembled
   server-side under hard caps and closed input schemas; secrets, personal data, and raw
   payloads are minimized or ride a transient never-persisted channel; what the model saw is
   reconstructible afterward; and exclusions are designed and documented, not accidental.

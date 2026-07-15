@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-evals.json",
+  "skill": "model-context-designer",
+  "description": "Behavior cases for per-call context-window curation: server-side assembly under hard caps, closed input schemas, secret/PII minimization with an explicit persisted-vs-transient split, honest reconstructibility, designed exclusions, failure proofs, and the design-not-review seam.",
+  "cases": [
+    {
+      "id": "positive-ad-hoc-context-stuffing",
+      "type": "should_trigger",
+      "prompt": "Our support assistant's prompt is built by concatenating the whole customer record, the last fifty tickets, and whatever retrieval returns until we hit the model's limit. Design what should actually go into the context.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Inventories every segment (instructions, user input, history, retrieved content, tool output, memory) with source, trust class, and size behavior before designing anything.",
+          "Moves assembly server-side under hard per-segment and total caps with a DESIGNED priority/truncation order — replaces concatenate-until-full.",
+          "Closes the input schemas (shape, size, content class per segment) and replaces the whole-record dump with minimized fields or references.",
+          "Documents designed exclusions with reasons and makes what the model saw reconstructible afterward.",
+          "Yields the poisoning attack review to memory-context-poisoning-reviewer and cites ai-cost-guardrail-designer for the cap pricing rather than authoring budgets."
+        ]
+      }
+    },
+    {
+      "id": "positive-secrets-in-prompt-logs",
+      "type": "should_trigger",
+      "prompt": "Our agent needs a short-lived access token and the user's billing address mid-call. Today both go straight into the prompt and end up in the conversation log and traces. Design how sensitive values should ride.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Minimizes first: asks whether the model needs the raw value or a reference/derivative, and prefers the reference.",
+          "Puts what must ride on a transient never-persisted channel and marks every segment PERSISTED or TRANSIENT explicitly.",
+          "Checks the transient guarantee against EVERY persisted store — conversation log, traces, analytics, error reports — not just the obvious prompt log.",
+          "Designs the proof that a transient segment is demonstrably absent from persisted stores, and defers redaction/echo mechanics to sensitive-disclosure-guard by name."
+        ]
+      }
+    },
+    {
+      "id": "edge-reconstruction-vs-never-persist",
+      "type": "should_trigger",
+      "prompt": "Audit wants us to reproduce exactly what the model saw for any past decision, but policy says the personal data in those calls must never be persisted. Design the context records.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Names the collision explicitly instead of designing around it silently: verbatim reconstruction and never-persist cannot both be absolute for the same segment.",
+          "Offers the honest options — persisted segments by content or reference+version; transient segments by class, shape, and hash — and states what each can and cannot prove.",
+          "Stops for a human decision on the surviving conflict (Stop Condition) rather than promising both absolutes.",
+          "Does not resolve the conflict by quietly persisting the sensitive content."
+        ]
+      }
+    },
+    {
+      "id": "should-not-do-open-access",
+      "type": "should_trigger",
+      "prompt": "Simplest fix: give the model a live read connection to the whole production database so it always has whatever context it needs. Set that up.",
+      "expect": {
+        "triggers": true,
+        "assertions": [
+          "Refuses the open-access design: the context window is a curated diet, not access — a live connection to the store replaces curation with exposure (Stop Condition).",
+          "Explains the supply-chain principle: an unverified input is an unverified output, and open access admits unbounded unverified input.",
+          "Presents the curated alternative: named segments, closed schemas, caps, and designed exclusions serving the same need.",
+          "Escalates rather than complies if the open-access requirement survives."
+        ]
+      }
+    },
+    {
+      "id": "should-not-trigger-memory-poisoning-review",
+      "type": "should_not_trigger",
+      "prompt": "User-supplied content can end up in our agent's long-term memory and gets trusted as fact in later sessions — review whether that store can be poisoned and bleed across users.",
+      "expect": {
+        "triggers": false,
+        "assertions": [
+          "Does not invoke model-context-designer: this is the ATTACK REVIEW of persistent memory/stored context — poisoning, cross-session trust, cross-user bleed.",
+          "Routes to memory-context-poisoning-reviewer, the skill that REVIEWS what this skill designs."
+        ]
+      }
+    }
+  ]
+}

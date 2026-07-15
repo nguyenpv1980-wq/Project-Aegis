@@ -75,9 +75,13 @@ skill. The **SaaS architecture-depth pack** (D12.11) then completed in two build
 10-skill **strong cluster** (D31) and the 4-skill **low-priority set** (D32), resolving all 14
 candidates and bringing the library to **175 skills**. **D33** then ran a library-wide
 `skill-quality-reviewer` sweep that landed corrections only, and D34–D36 were
-documentation-only — no change to the count. Most recently, **D38** added
+documentation-only — no change to the count. **D38** added
 `project-orchestrator`, the beginner-facing top-level lifecycle router that is the library's
-front door (175→176), bringing it to **176 skills**.
+front door (175→176). Most recently, **D42** built the **CONSTRAIN/CURATE design pack** —
+`agent-harness-architect`, `model-context-designer`, and `agentic-loop-designer`, plus an
+extension of `structured-output-validator` — making the doctrine's D41 inward-facing pillars
+real: the DESIGN skills for the AI's own operating environment (harness, context, loop) that
+produce what the agentic-security clusters review (176→179), bringing it to **179 skills**.
 
 Full per-pack detail lives in [Skills (shipped)](#skills-shipped) below; for a quick map of
 what *kinds* of help the library offers, see [What's in the library](#whats-in-the-library).
@@ -104,7 +108,7 @@ library's own additions, and its sweep corrections were applied in D33.
 
 ## The roles Aegis can play
 
-Under the hood, Aegis is a library of 176 skills organized into 19 discipline families. In
+Under the hood, Aegis is a library of 179 skills organized into 20 discipline families. In
 practical terms, Aegis can make Claude act as:
 
 | Aegis can act as… | What that means for you | Example skills |
@@ -299,7 +303,7 @@ pick whichever matches how you work. The current full list is at
    claude
    ```
 
-3. That's the whole setup. Claude Code auto-discovers everything under `.claude/` — the 176
+3. That's the whole setup. Claude Code auto-discovers everything under `.claude/` — the 179
    skills and 7 subagents load automatically. There is no registration step.
 4. **How you invoke a skill** — skills are trigger-invoked, not slash-commanded. You invoke
    one by *describing a task that matches its trigger*, or by *naming it*. Two literal
@@ -441,7 +445,7 @@ entry in the reconciliation doc.
 
 ## Map of the system
 
-- **Skills** ([`.claude/skills/`](.claude/skills/)) — the 176 shipped procedures: 19
+- **Skills** ([`.claude/skills/`](.claude/skills/)) — the 179 shipped procedures: 20
   discipline families, fronted by `project-orchestrator`, the beginner-facing router that
   walks a non-developer through them from idea to shipped. See **[What's in the
   library](#whats-in-the-library)** below for the roster (each family, its purpose, and
@@ -450,7 +454,7 @@ entry in the reconciliation doc.
   [Subagents (read-only reviewers)](#subagents-read-only-reviewers).
 - **The planning record**
   ([`docs/reconciliation/step-0-reconciliation-v4.md`](docs/reconciliation/step-0-reconciliation-v4.md))
-  — the dated decisions (D1–D38) in §5 are the project's immutable decision log; the
+  — the dated decisions (D1–D42) in §5 are the project's immutable decision log; the
   D12/D14 candidate scopes recorded there are banked-but-not-built future
   work (the D12.8 pack graduated from banked to built with D21; the D13
   library-meta scope completed with D22).
@@ -463,7 +467,7 @@ entry in the reconciliation doc.
 
 ## What's in the library
 
-**Skill roles at a glance.** The 176 skills sit in **19 discipline families** (each a shipped
+**Skill roles at a glance.** The 179 skills sit in **20 discipline families** (each a shipped
 build batch), fronted by one beginner-facing orchestrator. This is the scannable map of what
 *kinds* of help exist; the full per-skill tables are in [Skills (shipped)](#skills-shipped) below.
 
@@ -559,6 +563,11 @@ keeps a human as the approval gate on anything irreversible. See
     share-link access. *e.g.* `cell-based-architecture-designer`,
     `data-partitioning-sharding-strategist`, `intra-tenant-scope-architect`,
     `share-link-access-architect`.
+20. **CONSTRAIN/CURATE design pack** *(D42, 3)* — the DESIGN skills for the AI's own operating
+    environment, making the doctrine's inward-facing pillars real: the governed harness every
+    model/tool call passes through, the curated context diet, and the honestly-bounded agentic
+    loop — they produce what the AI-security families (8–9) review. *e.g.*
+    `agent-harness-architect`, `model-context-designer`, `agentic-loop-designer`.
 
 ## Start here (canonical reading order)
 
@@ -607,6 +616,7 @@ for the per-phase skill lists and how the older execution-plan names merge in.
 | D31 | SaaS architecture depth — D12.11 STRONG cluster (10 = `command-gateway-architect`, `realtime-subscription-architect`, `background-job-orchestration-architect`, `horizontal-scalability-reviewer`, `search-architecture-designer`, `file-upload-storage-architect`, `usage-metering-and-cost-attribution-pipeline-designer`, `synthetic-monitoring-architect`, `offline-first-sync-architect`, `admin-console-architect`), 161→171. Hard-pinned seams: usage-metering ≠ `saas-cost-architect` (pipeline vs cost model), background-job ≠ `streaming-event-architect` (execution vs transport), realtime ↔ offline-first (online push vs offline sync, in-batch); `command-gateway-architect` enforces `authorization-matrix-designer`'s policy. usage-metering resolved STANDALONE. The 4 low-priority D12.11 candidates remain unbuilt (Build B). | P1 | ✅ shipped (D31) |
 | D32 | SaaS architecture depth — D12.11 LOW-PRIORITY set (4 = `cell-based-architecture-designer`, `data-partitioning-sharding-strategist`, `intra-tenant-scope-architect`, `share-link-access-architect`), 171→175. Completes the D12.11 pack (all 14 candidates resolved: 10 strong D31 + 4 low-priority D32). Both flags resolved STANDALONE: `intra-tenant-scope-architect` ≠ `multi-tenant-data-architect` (subordinate per-user scope axis vs the tenant_id axis), `share-link-access-architect` ≠ `authorization-matrix-designer` (bearer-capability guest access vs member RBAC). Seams also pinned: cell-based ≠ `saas-platform-architect`/`architecture-advisor`/`agent-containment-reviewer`; sharding ≠ `multi-tenant-data-architect`/`warehouse-lake-architect`/`operational-vs-analytical-splitter`. | P2 | ✅ shipped (D32) |
 | D38 | Beginner-facing lifecycle orchestrator / library front door (1 = `project-orchestrator`), 175→176. The top-level navigator that takes a non-developer from a vague idea to a shipped product: runtime stage detection + next-skill routing along existing seams + plain-language business-question translation + a persistent dated `docs/project-state.md`. Composes `ai-sdlc-operating-model`'s stage-gate map (**cited, never copied** — the anti-duplication condition) and keeps the human as the approval/merge gate via `human-approval-boundary` + `change-classification-gate` + `agent-authorization-matrix`. Defers elicitation to `requirements-gathering-facilitator`, team-policy authoring to `ai-sdlc-operating-model`. | P1 | ✅ shipped (D38) |
+| D42 | CONSTRAIN/CURATE design pack (3 new + 1 extension = `agent-harness-architect`, `model-context-designer`, `agentic-loop-designer` + `structured-output-validator` extended with type-level policy encoding and the parse → strict schema → policy/banned-content scan ladder), 176→179. Makes the doctrine's D41 inward-facing pillars real: the DESIGN skills for harness/context/loop engineering. Hard seam: **design-not-review** — each yields the attack review explicitly (harness → `prompt-injection-defender`/`agent-tool-safety-guard`/`agent-containment-reviewer`; context → `memory-context-poisoning-reviewer`; loop → `agent-goal-hijack-defender`/`ai-threat-modeler`); in-batch harness ↔ loop seam pinned both ways. Threads *"a verifier that cannot fail is theater with an exit code."* Generalized from the D40 read-only production audit. | P1 | ✅ shipped (D42) |
 | 8 | Backlog expansion in ≤20-skill validated batches | P2 | backlog |
 
 ## Subagents (read-only reviewers)
@@ -757,7 +767,7 @@ re-deriving them. **LLM03** is extend-existing (the shipped
 | `ai-cost-guardrail-designer` | Consumption guardrails (LLM10 DoS/denial-of-wallet): per-request token caps, tenant-scoped budgets/rate limits, agent loop/recursion bounds, fail-safe degraded mode + kill switch, burn-rate alerts before exhaustion; composes `saas-cost-architect` + `observability-operator`. | auto + manual |
 | `ai-governance-risk-reviewer` | AI governance/risk posture: impact-based risk tiering, oversight-to-tier matching, accountable ownership, AI disclosure/consent, model/feature card, obligation→control mapping (EU AI Act tiers, NIST AI RMF) without asserting legal conclusions. | auto + manual |
 | `ai-router-architect` | Centralized model-routing layer: one interface, server-side-only credentials, task/cost routing, choke-point cost enforcement, per-call telemetry, resilient fallback + circuit breaker + no-deploy kill switch, idempotent retries; composes `secrets-identity-hardener` + `observability-operator`. | **manual only** |
-| `structured-output-validator` | Output-shape contract (LLM05 companion): schema (fields/types/enums/ranges), validate-before-use, semantic checks beyond shape (tenant-scoped ids), bounded failure handling; shape-is-not-safety handoffs to `llm-output-safety-reviewer` + `agent-tool-safety-guard`. | auto + manual |
+| `structured-output-validator` | Output-shape contract (LLM05 companion, extended in D42): schema (fields/types/enums/ranges) encoded in TYPES where possible (non-compliant output unrepresentable), the validate-before-use ladder (parse → strict schema → policy/banned-content scan; failures logged as safety evidence + rejected, never silently repaired), semantic checks beyond shape (tenant-scoped ids), bounded shape-only repair-retry; shape-is-not-safety handoffs to `llm-output-safety-reviewer` + `agent-tool-safety-guard`. | auto + manual |
 | `sensitive-disclosure-guard` | (NEW, LLM02) Disclosure defense: data-minimization + pre-model redaction of secrets/PII/other-tenant data, output-path echo/bleed checks, log redaction at emission, provider retention/training posture; composes `tenant-isolation-reviewer` + `secrets-identity-hardener`. | auto + manual |
 | `model-poisoning-reviewer` | (NEW, LLM04) Training/feedback/ingestion integrity: contributor-trust assessment, poisoning paths, feedback-loop Sybil defense, ingestion-as-truth integrity, provenance/holdout controls; acquire-vs-ingest boundary with `supply-chain-security-reviewer`. | auto + manual |
 | `system-prompt-leakage-reviewer` | (NEW, LLM07) Two axes: no secrets in the prompt AND no security dependence on prompt secrecy — **system prompts are NOT security controls**; enforcement is deterministic and lives OUTSIDE the LLM; extraction-is-harmless framing. | auto + manual |
@@ -784,6 +794,22 @@ loops, ephemeral sandboxes, NL-to-execution paths);
 | `inter-agent-comms-reviewer` | (ASI07) A2A/MCP message security: per-edge mutual authn, end-to-end integrity, replay bounds, confidentiality, topology allowlists, spoofed results; authenticated ≠ trusted — peer messages never re-task or assert authority. | auto + manual |
 | `agent-containment-reviewer` | (ASI08+ASI10 merged) Cascade half: blast-radius isolation, bounded upstream trust, circuit breakers, checkpoints/rollback, retry-storm limits. Rogue half: drift baselines, agent inventory/lifecycle, kill switches that SEVER AUTHORITY (credentials revoked, not processes killed); composes `ai-cost-guardrail-designer` + `incident-response-runbook`. | auto + manual |
 | `human-agent-trust-reviewer` | (ASI09) Adversarial review of the approval layer: consent fatigue (rate/latency signals), self-reported summaries vs system-verified facts, bundling, urgency manipulation, automation-bias controls; counterpart to `human-approval-boundary`. | auto + manual |
+
+D42 — CONSTRAIN/CURATE design pack (3 new + 1 extension). Makes the
+doctrine's D41 inward-facing pillars real: the DESIGN skills for the AI's own
+operating environment — harness (CONSTRAIN), context (CURATE), loop
+(CONSTRAIN) — plus `structured-output-validator` extended (CURATE's output
+side: type-level policy encoding + the policy/banned-content scan ladder
+step). The hard seam is **design-not-review**: these skills PRODUCE the
+artifacts the Phase 7/7.5 security clusters REVIEW, and each yields the
+attack review explicitly. All three thread the doctrine's VERIFY principle —
+*a verifier that cannot fail is theater with an exit code*:
+
+| Skill | What it does | Invocation |
+|---|---|---|
+| `agent-harness-architect` | (CONSTRAIN) The governed operating environment: ONE server-side mediation point every model/tool call crosses; identity from credentials (never model-supplied), propagated; deny-by-default pre-flight ladder (authenticate → authorize → entitlement → budget → input policy) BEFORE the model runs, each rung fail-closed; CLOSED tool/provider registry; server-side versioned instruction custody; fail-closed audit (cannot-record ⇒ does-not-execute). Builds on `command-gateway-architect`; enforces `agent-authorization-matrix`; attack review yielded to `prompt-injection-defender` + `agent-tool-safety-guard` + `agent-containment-reviewer`. | auto + manual |
+| `model-context-designer` | (CURATE) Per-call context curation — a curated diet, not open access: server-side assembly under hard caps with designed degradation; closed input schemas; secret/PII minimization with an explicit persisted-vs-transient split; honest reconstructibility; designed, documented exclusions. ≠ `agent-startup-context-gate` (session-start) / `ai-cost-guardrail-designer` (cap price) / `rag-security-architect` (retrieval authz); poisoning review yielded to `memory-context-poisoning-reviewer`. | auto + manual |
+| `agentic-loop-designer` | (CONSTRAIN) Loop shape and bounds: single-shot-vs-agentic as an explicit up-front decision; clamped ceilings; TYPED retryability (policy rejection TERMINAL, never retried; transient retried once on IDENTICAL input under a reproducibility key); honest terminal states incl. the honest empty set — never padded into fabricated output. Consumes `ai-cost-guardrail-designer` caps; runs INSIDE `agent-harness-architect`'s harness; manipulation review yielded to `agent-goal-hijack-defender` + `ai-threat-modeler`. | auto + manual |
 
 Compliance & Governance batch (D9) — ISO 27001:2022 + ISO 42001:2023 + SOC 2,
 with NIST AI RMF 1.0 as voluntary companion. Architecture: **one shared
