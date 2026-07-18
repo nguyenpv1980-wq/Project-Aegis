@@ -68,6 +68,10 @@ own proven practice, including failures it absorbed during its own construction.
 2. Rewrite every section against
    [`docs/skill-generation-standard.md`](docs/skill-generation-standard.md) — required
    sections, description length, discriminating triggers, overlap avoidance, and evals.
+   Description contract: strict-YAML-valid (single-quote it if it contains `: `), parsed
+   value < 1024 chars, capability front-loaded; manual-only skills carry the
+   `MANUAL-ONLY; never auto-invoke. ` sentinel first *(validator-enforced — see the
+   Portability contract in the standard)*.
 3. **Register the skill on every surface it must appear on.** "Register in the README" is not
    one table — it is all of the surfaces below. The validator mechanically enforces the
    deterministic parts (3a, 3b, 3d, and the family-count reconciliation); the judgment parts —
