@@ -30,7 +30,8 @@ asserted from here.
 | Event routing | EventBridge | — |
 | Telemetry | CloudWatch + X-Ray | — |
 | Audit trail (control plane) | CloudTrail → log-archive account | — |
-| Posture | Security Hub + GuardDuty + Config | — |
+| Posture | Security Hub (CSPM + threat-correlation split) + GuardDuty + Config; Inspector (vuln), Macie (S3 PII), Detective (investigations), Access Analyzer (external/unused access) | — |
+| Security data lake / app authz | Security Lake (OCSF export), Verified Permissions | — |
 | IaC | Terraform | CDK (TS-native teams), CloudFormation |
 
 ## Tenant-isolation options per store

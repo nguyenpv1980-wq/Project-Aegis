@@ -1900,7 +1900,17 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
     - `gcp-saas-architect` — the parallel hyperscaler mapping skill for GCP
       (GCP is now a decide-able option here but has no mapper), mirroring
       `aws-saas-architect`/`azure-saas-architect`. Separate, lower-priority
-      future item.
+      future item. **Banked content (D48) — the GCP security suite, recorded
+      for IF this trigger ever fires:** Security Command Center (CSPM +
+      threat, now Enterprise tier), Google Security Operations/SecOps
+      (SIEM/SOAR, renamed from Chronicle — the rename is the durable fact),
+      Cloud Armor (WAF/DDoS), Cloud IDS (network IDS), Sensitive Data
+      Protection (formerly Cloud DLP — the Macie slot), Assured Workloads
+      (compliance/residency), and AI Protection + Model Armor
+      (name-and-place ONLY, design yielded to the AI-security/agent
+      cluster — the one GCP item touching the D48 Gap-2 seam). Same
+      discipline as the shipped mappers: name + place, tie to
+      isolation/cost/maturity, volatile packaging = verification items.
   - **Files.** `.claude/skills/cloud-architecture-decider/SKILL.md` (description
     widened to name the ladder + GCP, still < 1024 chars; Purpose, Use When,
     Inputs #8 workload-shape, Workflow 7→8 steps, Output Format, Validation
@@ -2044,6 +2054,51 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
     change.
   - To be checked by `skill-quality-reviewer` + `library-diff-reviewer` for
     the three seams.
+
+- **D48 (2026-07-18) — Extended `aws-saas-architect` + `azure-saas-architect`
+  security-posture coverage (skill-EDIT, count stays 184).**
+  - **Azure:** added Microsoft Sentinel (SIEM/SOAR), Defender for Cloud CSPM
+    + per-workload CWPP plans, Defender for Cloud Apps (CASB), Entra ID
+    Protection + Conditional Access — a correctness fix (Azure's security
+    suite is a primary enterprise-selection driver yet the mapper was
+    weakest there, one posture-only mention).
+  - **AWS parity:** added Inspector, Macie, Detective, IAM Access Analyzer,
+    the Security Hub CSPM-vs-threat-correlation split, and Security Lake
+    (OCSF) + Verified Permissions as first-class options.
+  - Each service tied to the existing discipline (tenant isolation + cost +
+    team maturity; SKU/tier/price = verification items); seam held
+    (name/place services; deep threat-modeling →
+    `threat-modeler`/`ai-threat-modeler`, detection-rule design →
+    `security-logging-alerting-architect`, SIEM operation →
+    `observability-operator`); provider product-naming (not
+    brands-as-examples — these are the provider's own service names, the
+    same class as Entra/Key Vault/GuardDuty already throughout both
+    skills).
+  - **Gap 2 (AI agent governance / Microsoft Agent 365): found ALREADY
+    COVERED at the content level; no new skill, no agent-skill edits.** The
+    Agent-365→skills map: agent registry/shadow detection →
+    `agent-containment-reviewer`; agent identity/access/agent-to-agent →
+    `agent-identity-privilege-reviewer` + `agent-harness-architect` +
+    `agent-authorization-matrix` + `inter-agent-comms-reviewer`; fleet
+    observability → `agent-containment-reviewer` (baselines) +
+    `ai-cost-guardrail-designer` (spend), surfaced via
+    `superadmin-observability-console-designer` (D47); agent data
+    governance → `model-context-designer` +
+    `memory-context-poisoning-reviewer` + `agent-memory-governance`; agent
+    threat protection → the agentic-security cluster
+    (`agent-goal-hijack-defender`, `agent-tool-safety-guard`,
+    `prompt-injection-defender`, and peers). The agentic cluster +
+    CONSTRAIN/CURATE + the D47 console ARE the vendor-neutral agent control
+    plane; recorded a doctrine paragraph noting the equivalence
+    (optional-b, `docs/ZERO_TRUST_AI_ENGINEERING_DISCIPLINE.md`).
+  - GCP security suite recorded as banked content on the D45
+    `gcp-saas-architect` banked item above (SCC, Google SecOps née
+    Chronicle, Cloud Armor, Cloud IDS, Sensitive Data Protection, Assured
+    Workloads, AI Protection/Model Armor) — no skill file created.
+  - Grounded in a read-only D48 discovery (verified); Gaps 1 and 2 kept
+    strictly separate. Sourced from a 2026 cloud-security-portfolio
+    research pass. Validator: **184 skills, exit 0** (edit-only; D43
+    count/family markers unchanged at 184/22).
 
 ---
 

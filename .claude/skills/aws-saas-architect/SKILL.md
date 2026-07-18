@@ -1,6 +1,6 @@
 ---
 name: aws-saas-architect
-description: Map a DECIDED logical architecture onto provider-idiomatic AWS for a multi-tenant SaaS — account topology (Organizations, SCPs), identity (IAM roles, Cognito, OIDC federation), network (VPCs, PrivateLink, ALB/CloudFront with WAF), Secrets Manager/KMS, data with an explicit tenant-isolation strategy per store (Aurora/RDS, DynamoDB, S3), compute chosen by team maturity (ECS/Fargate, EKS, Lambda), messaging (SQS, SNS, EventBridge), CloudWatch/CloudTrail observability, Security Hub/GuardDuty posture, Terraform/CDK IaC, and cost-allocation-tag cost controls. Every choice ties to tenant isolation, cost, and operational maturity; quota/instance-type/price claims become verification items, never asserted from memory. Use when asked to design or review AWS architecture for a SaaS, lay out AWS accounts, or choose between AWS options. Do NOT use to decide WHETHER AWS (cloud-architecture-decider), for Azure (azure-saas-architect), tenancy semantics (saas-platform-architect), or IaC diffs (iac-reviewer).
+description: Map a DECIDED logical architecture onto provider-idiomatic AWS for a multi-tenant SaaS — account topology (Organizations, SCPs), identity (IAM roles, Cognito, OIDC federation), network (VPCs, PrivateLink, ALB/CloudFront with WAF), Secrets Manager/KMS, data with an explicit tenant-isolation strategy per store (Aurora/RDS, DynamoDB, S3), compute chosen by team maturity (ECS/Fargate, EKS, Lambda), messaging (SQS, SNS, EventBridge), CloudWatch/CloudTrail observability, Security Hub/GuardDuty/Inspector posture, Terraform/CDK IaC, and cost-allocation-tag cost controls. Every choice ties to tenant isolation, cost, and operational maturity; quota/instance-type/price claims become verification items, never asserted from memory. Use when asked to design or review AWS architecture for a SaaS, lay out AWS accounts, or choose between AWS options. Do NOT use to decide WHETHER AWS (cloud-architecture-decider), for Azure (azure-saas-architect), tenancy semantics (saas-platform-architect), or IaC diffs (iac-reviewer).
 ---
 
 # AWS SaaS Architect
@@ -93,8 +93,30 @@ memory.
    rotation posture and key policies scoped per workload.
 8. **Set the CI/CD and security posture**: deployments assume IAM roles via
    OIDC federation, Security Hub + GuardDuty enabled organization-wide,
-   SCP guardrails, AWS Config rules for drift-prone settings. Pipeline
-   design itself belongs to `ci-pipeline-architect`.
+   SCP guardrails, AWS Config rules for drift-prone settings — then
+   complete the suite:
+   - Inspector: vulnerability management for the computes chosen (EC2, ECR
+     images, Lambda functions); volume-priced (verification item).
+   - Macie: S3 data/PII discovery scoped to the buckets holding tenant
+     data (pairs with the tenant-prefixed S3 isolation strategy); scan
+     scope is a cost decision, not default-on.
+   - Detective: investigation graph over GuardDuty findings — only with a
+     team that runs investigations (maturity-tied).
+   - IAM Access Analyzer: external- and unused-access findings — the
+     org-wide check on the IAM-first isolation discipline this design
+     depends on.
+   - Current shape: AWS splits Security Hub CSPM (posture aggregation)
+     from broader Security Hub (threat correlation) — packaging/naming are
+     verification items. Where findings feed an external SOC/SIEM, Amazon
+     Security Lake (OCSF) is the first-class export path; Verified
+     Permissions is the managed fine-grained-authz option at the app layer
+     (the matrix itself belongs to `authorization-matrix-designer`).
+   The mapper NAMES and PLACES these services and ties them to isolation,
+   cost, and maturity; deep threat modeling belongs to `threat-modeler` /
+   `ai-threat-modeler`; detection-rule design to
+   `security-logging-alerting-architect`; operating the SIEM to
+   `observability-operator`. Pipeline design itself belongs to
+   `ci-pipeline-architect`.
 9. **Declare the IaC strategy**: Terraform (mixed estates, most common),
    CDK (TypeScript-native teams), or CloudFormation — one primary tool,
    state/environment layout, module conventions; review discipline per
@@ -119,7 +141,7 @@ Data (per store): <store — service — tenant-isolation mechanism — why it f
 Compute (per workload): <workload — service — rationale incl. operational bill>
 Messaging: <needs → SQS / SNS / EventBridge, tenant context propagation>
 Observability & secrets: <CloudWatch/X-Ray/CloudTrail wiring, Secrets Manager + KMS layout>
-Security posture & CI/CD: <Security Hub/GuardDuty/SCPs/Config, OIDC deploy path>
+Security posture & CI/CD: <Security Hub (CSPM/threat split), GuardDuty, Inspector/Macie/Detective/Access Analyzer placements, SCPs/Config, OIDC deploy path>
 IaC strategy: <tool, state/environment layout, module conventions>
 Cost controls: <budgets, views, attribution feed, top-3 cost risks>
 Verification items: <each quota/type/region/price-dependent claim → verify against current AWS docs>
@@ -162,6 +184,10 @@ Assumptions & open questions: <each with risk-if-wrong / who answers>
   landing-zone time or lose the history.
 - CloudWatch log ingestion and retention is a routine top-3 SaaS cost line;
   set retention and export posture in the design, not after the bill.
+- GuardDuty, Inspector, and Macie meter by volume analyzed; Macie run
+  estate-wide over data-heavy buckets is a classic surprise bill — scope
+  it to tenant-data stores and list every scan meter as a verification
+  item.
 
 ## Stop Conditions
 

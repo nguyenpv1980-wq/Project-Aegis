@@ -166,6 +166,17 @@ not of its obedience.*
   are pinned by evals, so a prompt/model/retrieval change that degrades them fails a gate,
   not a user.
 
+The industry is beginning to ship this inward half as product — an "agent control plane":
+a registry of every running agent, a distinct identity per agent, fleet-level
+observability, and governance over what agents may touch (Microsoft Agent 365 is the
+current market anchor for the category). This doctrine already specifies that surface
+vendor-neutrally. The agentic-security cluster owns the registry, identity, containment,
+and threat-defense side; CONSTRAIN and CURATE own the harness, context, and loop that make
+those controls physics rather than promise. A team that has internalized the inward
+pillars is not waiting for a vendor's control plane — it already operates one, expressed
+as discipline rather than product. Vendor packaging will keep changing; the surface it
+packages is the durable thing, and it is the one specified here.
+
 ## Proof from this project's own history
 
 This library was itself built under this discipline, and its documented incidents are
