@@ -1,6 +1,6 @@
 ---
 name: azure-saas-architect
-description: Map a DECIDED logical architecture onto provider-idiomatic Azure for a multi-tenant SaaS — subscription layout, identity (Entra ID, managed identities, OIDC federation), network (VNets, Private Link, Front Door), Key Vault, data with an explicit tenant-isolation strategy per store (Azure SQL, Cosmos DB, Blob), compute chosen by team maturity (App Service, Container Apps, AKS, Functions), messaging (Service Bus, Event Grid), Azure Monitor observability, Azure Policy/Defender posture, Bicep/Terraform IaC, and tag-keyed cost controls. Every choice ties to tenant isolation, cost, and operational maturity; SKU/quota/price claims become verification items, never asserted from memory. Use when asked to design or review Azure architecture for a SaaS, lay out a landing zone, or choose between Azure options. Do NOT use to decide WHETHER Azure (cloud-architecture-decider), for AWS (aws-saas-architect), tenancy semantics (saas-platform-architect), or IaC diffs (iac-reviewer).
+description: Map a DECIDED logical architecture onto provider-idiomatic Azure for a multi-tenant SaaS — subscription layout, identity (Entra ID, managed identities, OIDC federation), network (VNets, Private Link, Front Door), Key Vault, data with an explicit tenant-isolation strategy per store (Azure SQL, Cosmos DB, Blob), compute chosen by team maturity (App Service, Container Apps, AKS, Functions), messaging (Service Bus, Event Grid), Azure Monitor observability, Azure Policy + Defender for Cloud/Sentinel posture, Bicep/Terraform IaC, and tag-keyed cost controls. Every choice ties to tenant isolation, cost, and operational maturity; SKU/quota/price claims become verification items, never asserted from memory. Use when asked to design or review Azure architecture for a SaaS, lay out a landing zone, or choose between Azure options. Do NOT use to decide WHETHER Azure (cloud-architecture-decider), for AWS (aws-saas-architect), tenancy semantics (saas-platform-architect), or IaC diffs (iac-reviewer).
 ---
 
 # Azure SaaS Architect
@@ -96,8 +96,31 @@ against current Azure docs, never asserted from memory.
 8. **Set the CI/CD and security posture**: deployment via GitHub Actions or
    Azure DevOps using OIDC federation to Entra (no stored cloud
    credentials), Azure Policy for guardrails (deny public storage, require
-   tags, require private endpoints), Microsoft Defender for Cloud posture
-   monitoring, activity logs retained. Pipeline design itself belongs to
+   tags, require private endpoints), activity logs retained — then place
+   the security suite deliberately:
+   - Microsoft Defender for Cloud: CSPM baseline org-wide, plus
+     per-workload CWPP plans (Servers, Containers, SQL, Storage, Key
+     Vault, App Service, APIs) for the services THIS design deploys — each
+     plan is a per-resource cost meter (coverage/pricing are verification
+     items; enable-all-by-default is a cost trap, not a posture win).
+   - Microsoft Sentinel: SIEM/SOAR when the team has (or is hiring) a
+     detection-and-response practice; it ingests via Log Analytics, so the
+     Log Analytics cost gotcha applies to security telemetry too, and
+     Sentinel without a triage practice is shelfware (a maturity call,
+     like AKS). Detection-rule/alert design belongs to
+     `security-logging-alerting-architect`; operating the stack to
+     `observability-operator`.
+   - Defender for Cloud Apps (CASB) + Entra ID Protection + Conditional
+     Access (risk-based sign-on on the step-2 identity plane):
+     name-and-place for enterprise estates — these govern
+     workforce/operator access to the estate, NOT the product's end-user
+     authorization.
+   - Current shape: Microsoft consolidates these in the unified Defender
+     portal (Sentinel now GA there); portal packaging and tier names are
+     verification items against current Azure docs.
+   The mapper NAMES and PLACES these services and ties them to isolation,
+   cost, and maturity; deep threat modeling belongs to `threat-modeler` /
+   `ai-threat-modeler`. Pipeline design itself belongs to
    `ci-pipeline-architect`.
 9. **Declare the IaC strategy**: Bicep (Azure-native) or Terraform (mixed
    estates) — one primary tool, state/environment layout, module
@@ -123,7 +146,7 @@ Data (per store): <store — service — tenant-isolation mechanism — why it f
 Compute (per workload): <workload — service — rationale incl. operational bill>
 Messaging: <needs → Service Bus / Event Grid / Event Hubs, tenant context propagation>
 Observability & secrets: <Monitor/App Insights/Log Analytics wiring, Key Vault layout, rotation>
-CI/CD & security posture: <OIDC deploy path, Azure Policy guardrails, Defender posture>
+CI/CD & security posture: <OIDC deploy path, Azure Policy guardrails, Defender for Cloud plans, Sentinel (if D&R practice), CASB / ID Protection placements>
 IaC strategy: <tool, state/environment layout, module conventions>
 Cost controls: <budgets, views, attribution feed, top-3 cost risks>
 Verification items: <each SKU/limit/region/price-dependent claim → verify against current Azure docs>
@@ -142,6 +165,8 @@ Assumptions & open questions: <each with risk-if-wrong / who answers>
       justified in writing.
 - [ ] Compute choices cite the team-maturity input; AKS (if chosen) carries
       a named reason and its operational bill.
+- [ ] Security-suite choices tie to team maturity and carry their cost
+      meters; no plan/tier claim is asserted from memory.
 - [ ] Cost controls key on the tagging standard and name the top cost risks
       of this specific design.
 - [ ] Tenancy semantics, pipeline internals, and IaC diff review were
@@ -165,6 +190,10 @@ Assumptions & open questions: <each with risk-if-wrong / who answers>
 - Log Analytics ingestion is a routine surprise top-3 cost line in SaaS
   telemetry designs; set daily caps/table plans as part of the design, not
   after the first bill.
+- Defender for Cloud plans meter per resource and Sentinel rides the Log
+  Analytics meter — the security suite is a routine surprise top-3 cost
+  line; scope plans to the workloads this design deploys and cap security
+  telemetry like any other Log Analytics table.
 - Azure Policy guardrails applied after workloads exist produce a
   remediation backlog; ship policy with the landing zone, not as cleanup.
 

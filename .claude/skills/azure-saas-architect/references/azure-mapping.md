@@ -27,7 +27,10 @@ a verification item against current Azure docs, never asserted from here.
 | Streaming | Event Hubs | — |
 | Telemetry | Application Insights + Azure Monitor + Log Analytics | — |
 | Policy guardrails | Azure Policy | — |
-| Posture monitoring | Microsoft Defender for Cloud | — |
+| Posture monitoring | Microsoft Defender for Cloud (CSPM + per-workload plans) | — |
+| SIEM/SOAR | Microsoft Sentinel (via Log Analytics) | — |
+| CASB | Defender for Cloud Apps | — |
+| Identity threat protection | Entra ID Protection + Conditional Access | — |
 | IaC | Bicep (Azure-native) | Terraform (mixed estate) |
 
 ## Tenant-isolation options per store
