@@ -110,7 +110,8 @@ library's own additions, and its sweep corrections were applied in D33.
 
 ## The roles Aegis can play
 
-Under the hood, Aegis is a library of <!-- SKILL-COUNT -->184<!-- /SKILL-COUNT --> skills organized into <!-- FAMILY-COUNT -->22<!-- /FAMILY-COUNT --> discipline families. In
+Under the hood, Aegis is a library of skills organized into discipline families — the marked
+totals in the intro below are the authoritative counts. In
 practical terms, Aegis can make your coding agent act as:
 
 | Aegis can act as… | What that means for you | Example skills |

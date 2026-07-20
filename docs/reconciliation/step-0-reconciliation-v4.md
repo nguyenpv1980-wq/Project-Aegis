@@ -2551,6 +2551,12 @@ Both tracks require this; it is canonical. Before creating skills in any phase, 
     count-marker pairs (:111 and :523) reconcile against disk; the D55
     guided-path link check stays green (the picker edits touched no path-doc
     link). No `scripts/` or `.github/` files touched — normal merge.
+  - **Follow-up (same PR):** the :111 marker pair was reverted to countless
+    wording — `check_readme_counts` governs only the FIRST marker instance
+    (`.search`), so a second pair leaves one silently ungoverned; exactly one
+    governed pair restored. Extended the census fixes to `standard:3` and
+    `catalog:93` (identity-class mentions outside the original scope). Source:
+    post-build review against the combined prompt.
 
 ---
 

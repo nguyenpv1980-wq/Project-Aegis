@@ -1,7 +1,7 @@
 # Skill Generation Standard
 
-This is the authoritative standard for authoring Claude Code **skills** in this
-repository. Every skill under `.claude/skills/` MUST conform. `scripts/validate-skills.py`
+This is the authoritative standard for authoring **skills** in the open Agent Skills format for this
+library (Claude Code is the reference surface). Every skill under `.claude/skills/` MUST conform. `scripts/validate-skills.py`
 enforces the machine-checkable subset of these rules; the rest are review conventions.
 
 The `.claude/skills/_template/` directory is the reference implementation of this

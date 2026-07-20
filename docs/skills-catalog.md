@@ -90,7 +90,7 @@ checks that every *implemented* skill is listed here and in `README.md`.
 
 | | **Skill** (`.claude/skills/`) | **Subagent** (`.claude/agents/`) |
 | --- | --- | --- |
-| What it is | A reusable *procedure* — an ordered workflow Claude loads and executes. | A read-only *reviewer persona* spawned to judge a delimited task in its own context. |
+| What it is | A reusable *procedure* — an ordered workflow the agent loads and executes. | A read-only *reviewer persona* spawned to judge a delimited task in its own context. |
 | Invocation | Triggers on its `description`, or explicitly by name. | Delegated to via the Agent tool. |
 | Tools | Inherits session tools; narrows via `allowed-tools`. | Declares its own tools; **read-only by default** (decision D2). |
 | Best for | Repeatable transformations/generation with a defined output + evals. | Focused review/audit passes that benefit from isolation and a specialized lens. |
